@@ -50,6 +50,7 @@ have node && echo "  node    $(node --version)" || echo "  node    MISSING — i
 have ffmpeg && echo "  ffmpeg  present" || echo "  ffmpeg  MISSING — needed to verify renders"
 echo "Track B (stock + voice-over):"
 have uv && echo "  uv      present" || echo "  uv      MISSING — curl -LsSf https://astral.sh/uv/install.sh | sh"
+have python3 && echo "  python3 $(python3 --version 2>&1 | cut -d' ' -f2)" || echo "  python3 MISSING — needed for ./.venv when uv is absent"
 echo
 echo "Track C (storyboard) needs nothing and always works."
 echo "Start a new Claude Code session, then check /skills."

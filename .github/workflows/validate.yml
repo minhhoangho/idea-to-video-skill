@@ -67,6 +67,22 @@ jobs:
           grep -q ci-test video-projects/INDEX.md || { echo "job not registered"; exit 1; }
           echo "workspace scripts ok"
 
+      - name: Python env script is idempotent
+        run: |
+          cd "$(mktemp -d)"
+          git init -q .
+          printf 'node_modules/' > .gitignore   # no trailing newline, on purpose
+          "$GITHUB_WORKSPACE"/idea-to-video/scripts/setup_python_env.sh tabulate
+          test -x .venv/bin/python || { echo "venv not created"; exit 1; }
+          .venv/bin/python -c 'import ssl' || { echo "venv has no working ssl"; exit 1; }
+          grep -qx '.venv/' .gitignore || { echo ".venv/ not gitignored"; exit 1; }
+          grep -qx 'node_modules/' .gitignore || { echo "clobbered existing .gitignore line"; exit 1; }
+          # A rerun must reuse the venv and install nothing.
+          "$GITHUB_WORKSPACE"/idea-to-video/scripts/setup_python_env.sh tabulate 2>&1 | grep -q 'nothing to install' \
+            || { echo "rerun did not short-circuit"; exit 1; }
+          test "$(grep -c '^\.venv/$' .gitignore)" = 1 || { echo ".gitignore entry duplicated"; exit 1; }
+          echo "python env script ok"
+
       - name: Build bundle
         run: |
           chmod +x scripts/build.sh

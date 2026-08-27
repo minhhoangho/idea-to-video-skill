@@ -1,9 +1,9 @@
 ---
 name: idea-to-video
 description: Turn a short idea, topic, or one-line prompt into a finished video. Use this skill whenever the user wants to make or fix a video — a Reel/Short/TikTok, promo, explainer, product demo, logo or brand animation, kinetic typography, animated captions, or a faceless narrated video — even when they name no tool and give only one sentence like "make me a video about X" or "30s clip for our app launch". Also use it when the user mentions Remotion, MoneyPrinterTurbo, motion graphics, b-roll, voice-over, storyboard, video script, shot list, or asks why an existing generated video looks flat or generic. The skill runs one short clarification round, proposes 2–3 creative directions with a recommendation, then produces the video — or a production-ready storyboard package when no render environment exists.
-compatibility: Works in any Claude surface. Full rendering needs a terminal with Node.js 18+ and ffmpeg (Remotion track) or uv/Python 3.11 (stock+TTS track). Without a terminal the skill degrades gracefully to the storyboard track.
+compatibility: Works in any Claude surface. Full rendering needs a terminal with Node.js 18+ and ffmpeg (Remotion track) or uv/Python 3.11 (stock+TTS track); Python tooling runs from a local ./.venv created by scripts/setup_python_env.sh. Without a terminal the skill degrades gracefully to the storyboard track.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Idea → Video
@@ -99,6 +99,8 @@ Every job gets its own dated folder under `video-projects/` in the user's workin
 
 This is not bookkeeping for its own sake. It is what lets the user come back in a month, see which render shipped, and get a square variant without re-answering a single question.
 
+Python tooling lives *beside* that workspace, not inside it. `scripts/setup_python_env.sh` creates `./.venv` in the working directory once, and every job reuses it — one visible, deletable directory instead of a venv per job or packages dumped into system Python. Call tools by path (`.venv/bin/edge-tts`); activation does not survive between shell calls.
+
 If the user already has a folder convention, use theirs and say what you mapped where.
 
 ### While producing
@@ -147,9 +149,10 @@ idea-to-video/
 │   └── storyboard-template.md
 ├── scripts/
 │   ├── new_project.sh          # create a job folder + register it in INDEX.md
+│   ├── setup_python_env.sh     # create/reuse ./.venv for edge-tts and friends
 │   ├── scaffold_remotion.sh    # non-interactive Remotion project bootstrap
 │   └── inspect_frames.sh       # ffmpeg frame extraction for verification
 └── README.md                   # install and usage, for humans
 ```
 
-Renders land in the user's `video-projects/` workspace, never inside this skill directory.
+Renders land in the user's `video-projects/` workspace and Python tools in the user's `./.venv`, never inside this skill directory.

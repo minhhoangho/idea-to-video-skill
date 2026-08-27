@@ -64,10 +64,14 @@ cat > "$JOB/NOTES.md" <<EOF
 Job created. Brief not yet filled.
 EOF
 
+# .venv/ is listed even though the convention puts one venv at the working
+# directory, not per job — if someone does create one here, it should not
+# reach a commit before anyone notices.
 cat > "$JOB/.gitignore" <<'EOF'
 frames/
 project/node_modules/
 out/*.mp4
+.venv/
 EOF
 
 echo "created ${JOB}" >&2

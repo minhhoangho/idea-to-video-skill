@@ -4,6 +4,31 @@ All notable changes to this skill are recorded here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] — 2026-08-27
+
+### Added
+- `scripts/setup_python_env.sh` — creates or reuses a `.venv` in the user's
+  working directory, installs only the packages actually missing, and adds
+  `.venv/` to `.gitignore`. Tries `uv venv`, then `uv venv --python 3.12`
+  (overridable with `IDEA_TO_VIDEO_PYTHON`), then `python3 -m venv`, and
+  verifies at each step that the interpreter can `import ssl` — a venv without
+  working TLS cannot download anything and fails much later, confusingly.
+  Refuses to overwrite a path that is not a virtualenv.
+- `references/project-structure.md` documents the venv as living beside
+  `video-projects/`, one environment shared by every job.
+
+### Changed
+- Track B no longer bans a hand-managed virtualenv outright. The ban now applies
+  only to MoneyPrinterTurbo's own environment; standalone tools (`edge-tts`,
+  `whisper`, `yt-dlp`) go into the working directory's `.venv`.
+- `new_project.sh` adds `.venv/` to each job's `.gitignore`.
+- `install.sh` reports whether `python3` is available.
+
+### Fixed
+- With no guidance on Python environments, the agent invented an ad-hoc venv at
+  whatever path seemed convenient — outside the workspace and outside any
+  convention. There is now one documented location.
+
 ## [1.2.0] — 2026-08-27
 
 ### Added

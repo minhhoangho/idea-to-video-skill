@@ -47,7 +47,28 @@ curl -LsSf https://astral.sh/uv/install.sh | sh          # macOS
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"   # Windows
 ```
 
-Do not use Docker, Conda, system pip, the WebUI, or a hand-managed virtualenv, and do not run two jobs at once.
+Do not use Docker, Conda, system pip, or the WebUI for this pipeline, do not hand-manage *its* environment, and do not run two jobs at once. Standalone Python tools are a separate matter — see the next section.
+
+## Python environment for standalone tools
+
+MoneyPrinterTurbo brings its own environment. Anything else you reach for does not: a narration retake with `edge-tts`, a transcript from `whisper`, a reference clip pulled with `yt-dlp`. Those go into **one venv in the user's working directory** — never system Python, never a throwaway env per job:
+
+```bash
+scripts/setup_python_env.sh              # creates ./.venv with edge-tts
+scripts/setup_python_env.sh yt-dlp       # same venv, one more tool
+```
+
+The script creates `./.venv` if it is absent, reuses it if it exists, installs only what is actually missing, and adds `.venv/` to `.gitignore`. It prints the venv's `bin` directory on stdout. Pass `--dir <path>` if the user keeps environments somewhere specific.
+
+It also checks that the interpreter can `import ssl`, and rebuilds the venv from a working interpreter when it cannot. This is not paranoia: a pyenv Python compiled against an OpenSSL that Homebrew has since retired creates a venv perfectly happily, then fails on the first download with an `ImportError` deep inside a traceback, twenty minutes into a render. Do not debug that by hand — rerun the script.
+
+**Call tools by path, never activate.** `source .venv/bin/activate` dies with the shell that ran it, so the next command is silently back on system Python — a failure that reads like a broken install:
+
+```bash
+.venv/bin/edge-tts --voice vi-VN-NamMinhNeural --text "..." --write-media out.mp3
+```
+
+One venv serves every job in the workspace, which is the point: the user has a single directory to look at, and deleting it costs a minute to rebuild. Record any package you install beyond the default in the job's `NOTES.md`, so a re-render months later knows what the audio was built with.
 
 ## Exit handling
 

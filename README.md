@@ -57,6 +57,8 @@ node --version && ffmpeg -version | head -1   # Track A
 curl -LsSf https://astral.sh/uv/install.sh | sh   # Track B, macOS
 ```
 
+Python tools — `edge-tts` and anything a job adds later — go into a `.venv` in *your* working directory, created on demand by `scripts/setup_python_env.sh`. One venv for every job, gitignored automatically, safe to delete whenever. Nothing is installed into system Python.
+
 ---
 
 ## Using it
@@ -157,6 +159,7 @@ idea-to-video/
 │   └── storyboard-template.md
 └── scripts/
     ├── new_project.sh          # create a job folder, seed brief.md, register it
+    ├── setup_python_env.sh     # create/reuse ./.venv for edge-tts and friends
     ├── scaffold_remotion.sh    # bootstrap a Remotion project inside a job
     └── inspect_frames.sh       # extract frames for the QA pass
 ```

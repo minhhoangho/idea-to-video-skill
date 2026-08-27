@@ -32,6 +32,20 @@ video-projects/
 
 `scripts/new_project.sh <slug>` creates this skeleton and appends the row to `INDEX.md`. Run it at the start of Phase 4, before writing any code.
 
+## Tooling sits beside the workspace, not inside it
+
+```
+<working directory>/
+├── .venv/                          # Python tools — one venv for every job
+└── video-projects/                 # the tree above
+```
+
+`scripts/setup_python_env.sh` creates `./.venv` in the user's working directory and reuses it forever after — `edge-tts` by default, plus whatever a job asks for. It gitignores itself.
+
+One venv at this level rather than one per job is a deliberate trade: jobs stop being byte-for-byte reproducible, but the user gets a single directory they can see, inspect and delete, instead of a copy of the same packages buried in every job folder. Log any package beyond the default in the job's `NOTES.md` so the trade stays cheap.
+
+Call tools by path — `.venv/bin/edge-tts` — never `source .venv/bin/activate`. Activation dies with the shell that ran it, so the next command silently runs on system Python.
+
 ## Naming
 
 **Job folder:** `YYYY-MM-DD-<slug>`. The date is the start date and never changes, even across revisions weeks later — it is how the user finds the job again.
@@ -75,6 +89,7 @@ When a user returns with "can you redo the one from last month but square", this
 - **Corrections go into `brief.md`**, not just into the code. A brief that drifts from what was built is worse than no brief.
 - **`frames/` is disposable.** Clear it between renders so you are never inspecting stale frames from the previous version — a genuinely easy mistake that produces confident wrong QA verdicts.
 - **Shared assets go in `_shared/`**, referenced not copied, so a brand palette change propagates instead of being re-fixed in six jobs.
+- **Python tools come from `./.venv`**, never system pip and never a second venv invented on the spot. If it is missing, `scripts/setup_python_env.sh` builds it; if it is broken, delete it and rerun.
 - **Archive on delivery**, once the user confirms they have the file: `mv <job> _archive/` and update `INDEX.md`. Do not archive on your own initiative — a job is not finished until the user says it is.
 
 ## If the user already has a structure

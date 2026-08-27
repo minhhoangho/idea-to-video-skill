@@ -17,3 +17,8 @@ frames/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local Python tooling — created by idea-to-video/scripts/setup_python_env.sh
+.venv/
+
+.claude/
