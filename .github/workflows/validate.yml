@@ -1,0 +1,78 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shell syntax
+        run: |
+          for f in idea-to-video/scripts/*.sh install.sh scripts/*.sh; do
+            bash -n "$f" || exit 1
+          done
+
+      - name: Scripts are executable
+        run: |
+          for f in idea-to-video/scripts/*.sh install.sh scripts/*.sh; do
+            test -x "$f" || { echo "not executable: $f"; exit 1; }
+          done
+
+      - name: SKILL.md frontmatter
+        run: |
+          python3 - <<'PY'
+          import re, sys, pathlib
+          t = pathlib.Path('idea-to-video/SKILL.md').read_text()
+          if not t.startswith('---'):
+              sys.exit('SKILL.md must open with YAML frontmatter')
+          fm = t.split('---')[1]
+          name = re.search(r'^name:\s*(.+)$', fm, re.M)
+          desc = re.search(r'^description:\s*(.+)$', fm, re.M)
+          if not name or not desc:
+              sys.exit('frontmatter needs both name and description')
+          if name.group(1).strip() != 'idea-to-video':
+              sys.exit('name must match the directory name')
+          if len(desc.group(1)) < 80:
+              sys.exit('description too thin to trigger reliably')
+          print('frontmatter ok')
+          PY
+
+      - name: Referenced files exist
+        run: |
+          python3 - <<'PY'
+          import re, pathlib, sys
+          root = pathlib.Path('idea-to-video')
+          text = '\n'.join(p.read_text() for p in root.rglob('*.md'))
+          missing = []
+          for rel in set(re.findall(r'`((?:references|assets|scripts)/[\w./-]+)`', text)):
+              if not (root / rel).exists():
+                  missing.append(rel)
+          if missing:
+              sys.exit('referenced but missing: ' + ', '.join(sorted(missing)))
+          print('all internal references resolve')
+          PY
+
+      - name: Workspace scripts run end to end
+        run: |
+          chmod +x idea-to-video/scripts/*.sh
+          cd "$(mktemp -d)"
+          JOB=$("$GITHUB_WORKSPACE"/idea-to-video/scripts/new_project.sh ci-test 2>/dev/null)
+          test -f "$JOB/brief.md" || { echo "brief.md not seeded"; exit 1; }
+          test -f "$JOB/NOTES.md" || { echo "NOTES.md not created"; exit 1; }
+          grep -q ci-test video-projects/INDEX.md || { echo "job not registered"; exit 1; }
+          echo "workspace scripts ok"
+
+      - name: Build bundle
+        run: |
+          chmod +x scripts/build.sh
+          ./scripts/build.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: idea-to-video-skill
+          path: dist/idea-to-video.skill

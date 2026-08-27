@@ -1,0 +1,19 @@
+# Build artifacts
+dist/
+
+# Runtime workspace — video jobs are user data, not source
+video-projects/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# QA extractions and renders, wherever they land
+frames/
+*.mp4
+*.mov
+*.wav
+
+# OS
+.DS_Store
+Thumbs.db
