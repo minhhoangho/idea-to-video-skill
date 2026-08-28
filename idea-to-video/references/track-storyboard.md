@@ -32,7 +32,7 @@ Timecodes must sum to the agreed duration. If they do not, the storyboard is wro
 
 ## Stock search terms
 
-For anything Track B would fetch, give literal search queries rather than descriptions: `"barber shop interior slow motion"`, not "a nice salon shot". Two or three alternatives per shot, because the first query often returns nothing usable.
+The skill fetches no stock itself — the user sources these. So give literal search queries they can paste into whatever library they use, rather than descriptions: `"barber shop interior slow motion"`, not "a nice salon shot". Two or three alternatives per shot, because the first query often returns nothing usable.
 
 ## Handoff
 

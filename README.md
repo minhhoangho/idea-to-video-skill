@@ -49,12 +49,13 @@ Only needed for actual rendering; the skill degrades gracefully without them.
 | For | You need |
 |---|---|
 | Track A — motion graphics | Node.js 18+, ffmpeg |
-| Track B — stock footage + voice-over | `uv`, Python 3.11, an LLM API key, a Pexels API key |
+| Track B — narrated video | the above, plus Python 3 for `edge-tts` (installed on demand) |
 | Track C — storyboard | nothing |
 
+**No API keys, for any track.** The script is written in the conversation, the voice-over comes from `edge-tts` running locally for free, and footage comes from whatever you supply. Nothing here asks you for a credential.
+
 ```bash
-node --version && ffmpeg -version | head -1   # Track A
-curl -LsSf https://astral.sh/uv/install.sh | sh   # Track B, macOS
+node --version && ffmpeg -version | head -1   # Track A and B
 ```
 
 Python tools — `edge-tts` and anything a job adds later — go into a `.venv` in *your* working directory, created on demand by `scripts/setup_python_env.sh`. One venv for every job, gitignored automatically, safe to delete whenever. Nothing is installed into system Python.
@@ -161,7 +162,7 @@ idea-to-video/
 │   ├── discovery.md            # question bank by request shape, with defaults
 │   ├── creative-direction.md   # hooks, beat structures, palettes, pacing, sound
 │   ├── track-remotion.md       # scaffold, the ten motion rules, render loop
-│   ├── track-stock-tts.md      # MoneyPrinterTurbo path, credentials, exit codes
+│   ├── track-narrated.md       # script → edge-tts → audio-driven composition
 │   ├── track-storyboard.md     # no-terminal fallback deliverable
 │   ├── input-analysis.md       # reading the reference material you supply
 │   ├── project-structure.md    # workspace layout, naming, archiving
@@ -174,6 +175,7 @@ idea-to-video/
     ├── new_project.sh          # create a job folder, seed brief.md, register it
     ├── scan_input.sh           # inventory the reference material you dropped in
     ├── setup_python_env.sh     # create/reuse ./.venv for edge-tts and friends
+    ├── narrate.sh              # script.md → voice-over + audioConfig.ts timing
     ├── scaffold_remotion.sh    # bootstrap a Remotion project inside a job
     └── inspect_frames.sh       # extract frames for the QA pass
 ```
@@ -187,7 +189,7 @@ idea-to-video/
 | Track | Use when | Gives you |
 |---|---|---|
 | **A — Remotion** | The video is *about* something specific: a brand, a product, exact words and colors | Deterministic React-rendered motion graphics. Exact text, exact colors, re-renderable forever |
-| **B — Stock + TTS** | Meaning is carried by a *voice* over generic imagery: faceless content, recaps, narration | Script → stock b-roll → TTS → burned subtitles → mixed MP4 |
+| **B — Narrated** | Meaning is carried by a *voice*: faceless content, recaps, explainers | Script → free local TTS → every scene timed to the audio → burned captions → MP4 |
 | **C — Storyboard** | No terminal, or you want the plan not the file | Brief, timed script, shot list, verbatim text sheet, asset queries |
 
 The agent picks and tells you why. When it is genuinely torn it will say so and let you break the tie.
@@ -202,7 +204,7 @@ Three edits worth doing before real use:
 
 **Your defaults in `references/discovery.md`.** The nine-slot table sets what the agent assumes when you stay silent. If you always make 9:16 at 24fps in a specific language, encode that and the question round gets shorter.
 
-**Your voice in `references/track-stock-tts.md`.** MoneyPrinterTurbo upstream defaults to Chinese output. If you work in another language, pin the language, voice and subtitle font there rather than relying on the default.
+**Your voice in `references/track-narrated.md`.** Narration defaults to a US English voice. If you work in another language, pin the voice name there — `scripts/narrate.sh --voices vi` lists what is available for a language — along with the caption font that suits it.
 
 ---
 

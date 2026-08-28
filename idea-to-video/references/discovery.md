@@ -17,7 +17,7 @@ A shootable brief needs nine slots filled. Most one-line ideas fill three or fou
 | 5 | Goal / CTA | Awareness, soft CTA in the last 2s |
 | 6 | Tone | Confident, modern, not corporate |
 | 7 | Narration | Yes for faceless & explainer, no for brand/promo |
-| 8 | Assets on hand | Whatever is in the job's `input/` — nothing there means stock or pure motion graphics |
+| 8 | Assets on hand | Whatever is in the job's `input/` — nothing there means pure motion graphics |
 | 9 | Brand constraints | Whatever `input/` says — nothing there means propose a palette |
 
 Slots 1–3 are cheap to confirm and expensive to get wrong; confirm them even when you think you inferred them. Slots 4–9 only get asked when they will actually change the output.
@@ -43,7 +43,7 @@ Pick from these; do not use all of them.
 ### Faceless content
 
 - Voice: male or female, fast or measured, which language? *(default: female, medium pace, conversation language)*
-- Visual source: stock footage, images you supply, or pure motion graphics? *(default: stock)*
+- Visual source: footage or images you drop in `input/`, or pure motion graphics? *(default: motion graphics — there is no stock library, by design)*
 - Caption style: word-by-word highlight, line-by-line, or none? *(default: line-by-line, large, heavy outline)*
 - Background music, and what mood? *(default: yes, neutral lo-fi, ducked under narration)*
 
@@ -70,7 +70,7 @@ Slots 8 and 9 are the two the user cannot answer well in prose. "Do you have bra
 
 > If you have a logo, product photos, a brand guide or a reference video, drop them in
 > `video-projects/2026-08-28-adidas/input/` — I'll read whatever is there.
-> *(default: nothing — I'll propose a palette and use stock imagery)*
+> *(default: nothing — I'll propose a palette and build the visuals)*
 
 Name the actual path; the folder already exists because Phase 1 created it. Include the line even when the idea mentions no assets — people forget they have a brand guide until they see a folder asking for one. And do not wait: carry on with the defaults, and rescan before you build. `input-analysis.md` covers what to do with whatever shows up.
 
@@ -96,4 +96,4 @@ Name the actual path; the folder already exists because Phase 1 created it. Incl
 - Offering a "custom" option with no default. The whole point of the default is that the user can skip.
 - Asking someone to *describe* a file they could simply hand over. "What are your brand colors?" is a worse question than a path to drop the brand guide into, and the answer is less accurate.
 - Blocking on `input/`. You gave them the path; now proceed on the defaults and rescan later.
-- Asking about implementation ("Remotion or stock footage?"). That is your decision to propose in Phase 3, not their burden in Phase 2 — unless they raised the tool themselves.
+- Asking about implementation ("motion graphics or narrated?"). That is your decision to propose in Phase 3, not their burden in Phase 2 — unless they raised the tool themselves.

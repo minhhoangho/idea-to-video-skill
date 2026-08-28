@@ -1,9 +1,9 @@
 ---
 name: idea-to-video
-description: Turn a short idea, topic, or one-line prompt into a finished video. Use this skill whenever the user wants to make or fix a video — a Reel/Short/TikTok, promo, explainer, product demo, logo or brand animation, kinetic typography, animated captions, or a faceless narrated video — even when they name no tool and give only one sentence like "make me a video about X" or "30s clip for our app launch". Also use it when the user mentions Remotion, MoneyPrinterTurbo, motion graphics, b-roll, voice-over, storyboard, video script, shot list, or asks why an existing generated video looks flat or generic. The skill runs one short clarification round, proposes 2–3 creative directions with a recommendation, then produces the video — or a production-ready storyboard package when no render environment exists.
-compatibility: Works in any Claude surface. Full rendering needs a terminal with Node.js 18+ and ffmpeg (Remotion track) or uv/Python 3.11 (stock+TTS track); Python tooling runs from a local ./.venv created by scripts/setup_python_env.sh. Without a terminal the skill degrades gracefully to the storyboard track.
+description: Turn a short idea, topic, or one-line prompt into a finished video. Use this skill whenever the user wants to make or fix a video — a Reel/Short/TikTok, promo, explainer, product demo, logo or brand animation, kinetic typography, animated captions, or a faceless narrated video — even when they name no tool and give only one sentence like "make me a video about X" or "30s clip for our app launch". Also use it when the user mentions Remotion, motion graphics, b-roll, voice-over, text-to-speech, storyboard, video script, shot list, or asks why an existing generated video looks flat or generic. The skill runs one short clarification round, proposes 2–3 creative directions with a recommendation, then produces the video — or a production-ready storyboard package when no render environment exists. It needs no API keys of any kind.
+compatibility: Works in any Claude surface and needs no API keys. Full rendering needs a terminal with Node.js 18+ and ffmpeg; narrated video also uses edge-tts from a local ./.venv created by scripts/setup_python_env.sh. Without a terminal the skill degrades gracefully to the storyboard track.
 metadata:
-  version: "1.4.0"
+  version: "2.0.0"
 ---
 
 # Idea → Video
@@ -62,7 +62,7 @@ Before I start, a few things to lock down (reply "default" to any of them):
 
 If you have a logo, product photos, a brand guide or a reference video, drop
 them in video-projects/<job>/input/ — I'll read whatever is there.
-(default: nothing — I'll propose a palette and use stock imagery)
+(default: nothing — I'll propose a palette and build the visuals)
 
 If you'd rather I just decide everything, say "you pick" — I'll run the
 defaults and explain each choice afterwards.
@@ -98,11 +98,13 @@ Wait for the pick. If the user says "you choose", take your recommendation and s
 | If the video needs… | Track | Reference |
 |---|---|---|
 | Exact text, brand colors, logos, UI mockups, data/counters, kinetic typography, anything re-renderable and pixel-controlled | **A — Remotion** | `references/track-remotion.md` |
-| Narration over stock footage, faceless short-form at volume, TTS voice-over with burned subtitles | **B — Stock + TTS** | `references/track-stock-tts.md` |
+| Narration carrying the meaning: faceless short-form, recaps, explainers, voice-over with burned captions | **B — Narrated** | `references/track-narrated.md` |
 | No terminal available, or the user only wants the plan/script | **C — Storyboard package** | `references/track-storyboard.md` |
-| A branded shell around real footage | **A + B hybrid** — Remotion composition, b-roll sourced as in Track B | both |
+| A branded shell around real footage the user supplied | **A + B hybrid** — Remotion composition, narration timed as in Track B | both |
 
-Default to Track A when the video is *about* a brand or an idea, and Track B when the video is *narrated over* generic imagery. When genuinely torn, say so and let the user break the tie — that tie-break is itself a useful proposal.
+Default to Track A when the video is *about* a brand or an idea, and Track B when a voice carries it. Both render through Remotion; the difference is that Track B generates the narration first and derives every scene length from it. When genuinely torn, say so and let the user break the tie — that tie-break is itself a useful proposal.
+
+**No track needs an API key.** The script is written in the conversation, the voice comes from a free local `edge-tts`, footage comes from what the user supplies. If you ever find yourself about to ask for a credential, you have left the skill.
 
 ### Workspace
 
@@ -152,7 +154,7 @@ idea-to-video/
 │   ├── discovery.md            # question bank by request shape, with defaults
 │   ├── creative-direction.md   # proposal templates, hooks, beats, palettes, sound
 │   ├── track-remotion.md       # scaffold, 10 motion rules, render loop
-│   ├── track-stock-tts.md      # MoneyPrinterTurbo path, credentials, exit codes
+│   ├── track-narrated.md       # script → edge-tts → audio-driven composition
 │   ├── track-storyboard.md     # no-terminal fallback deliverable
 │   ├── input-analysis.md       # reading the user's supplied reference material
 │   ├── project-structure.md    # video-projects/ workspace layout and naming
@@ -165,6 +167,7 @@ idea-to-video/
 │   ├── new_project.sh          # create a job folder + register it in INDEX.md
 │   ├── scan_input.sh           # inventory the user's input/ before proposing
 │   ├── setup_python_env.sh     # create/reuse ./.venv for edge-tts and friends
+│   ├── narrate.sh              # script.md → voice-over + audioConfig.ts timing
 │   ├── scaffold_remotion.sh    # non-interactive Remotion project bootstrap
 │   └── inspect_frames.sh       # ffmpeg frame extraction for verification
 └── README.md                   # install and usage, for humans

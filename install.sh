@@ -48,9 +48,10 @@ have() { command -v "$1" >/dev/null 2>&1; }
 echo "Track A (motion graphics):"
 have node && echo "  node    $(node --version)" || echo "  node    MISSING — install Node.js 18+"
 have ffmpeg && echo "  ffmpeg  present" || echo "  ffmpeg  MISSING — needed to verify renders"
-echo "Track B (stock + voice-over):"
-have uv && echo "  uv      present" || echo "  uv      MISSING — curl -LsSf https://astral.sh/uv/install.sh | sh"
+echo "Track B (narrated — adds voice-over to the above):"
+have uv && echo "  uv      present" || echo "  uv      optional — curl -LsSf https://astral.sh/uv/install.sh | sh"
 have python3 && echo "  python3 $(python3 --version 2>&1 | cut -d' ' -f2)" || echo "  python3 MISSING — needed for ./.venv when uv is absent"
+echo "  voice   edge-tts, installed on demand into ./.venv — free, no API key"
 echo
 echo "Track C (storyboard) needs nothing and always works."
 echo "Start a new Claude Code session, then check /skills."

@@ -1,7 +1,7 @@
 # Video Brief — <project name>
 
 > Single source of truth for this video. Every later decision traces back here.
-> Date: <date> · Track: <A Remotion | B Stock+TTS | C Storyboard>
+> Date: <date> · Track: <A Remotion | B Narrated | C Storyboard>
 
 ## 1. Original idea (user's words, verbatim)
 

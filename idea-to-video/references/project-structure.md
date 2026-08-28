@@ -20,10 +20,10 @@ video-projects/
 └── 2026-08-27-barbershop-promo/    # one job
     ├── brief.md                    # source of truth (assets/brief-template.md)
     ├── NOTES.md                    # decision log + revision history
-    ├── script.md                   # narration + timing (if narrated)
+    ├── script.md                   # narration, one "## <scene-id>" per scene
     ├── storyboard.md               # Track C, or the shot list for any track
     ├── input/                      # THEIRS — reference material, read-only
-    ├── project/                    # Remotion source, or the Track B task dir
+    ├── project/                    # Remotion source (+ generated audioConfig.ts)
     ├── assets/                     # YOURS — sourced or generated media
     ├── frames/                     # QA extractions — disposable, gitignorable
     └── out/                        # renders, versioned, never overwritten

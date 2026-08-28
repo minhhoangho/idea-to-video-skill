@@ -4,6 +4,39 @@ All notable changes to this skill are recorded here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [2.0.0] — 2026-08-28
+
+The skill now needs no API keys of any kind.
+
+### Removed
+- **BREAKING:** the MoneyPrinterTurbo pipeline and `references/track-stock-tts.md`.
+  It required an LLM API key and a Pexels API key, and its stock b-roll was the
+  weakest part of the output. The `MPT_*` environment variables are gone.
+
+### Added
+- `references/track-narrated.md` — Track B rebuilt around free local tooling:
+  the script is written in the conversation, `edge-tts` speaks it, `ffprobe`
+  measures it, and Remotion renders against that timing.
+- `scripts/narrate.sh` — turns `<job>/script.md` into per-scene audio plus a
+  generated `audioConfig.ts` carrying `id`, `file`, `durationInSeconds`,
+  `frames` and a cumulative `from` for each scene. Bootstraps `./.venv` on
+  first run, retries transient `NoAudioReceived` failures, and offers
+  `--dry-run` to show exactly what will be spoken and `--voices <lang>` to
+  list the voices for a language.
+- `<job>/script.md` as a defined format: one `## <scene-id>` heading per scene,
+  with comments, blockquotes and horizontal rules stripped from the narration.
+
+### Changed
+- Scene durations are derived from the narration audio rather than authored.
+  A composition can no longer cut mid-sentence or hold silence at the end.
+- Captions are built from the script text and the measured timing, so no
+  transcription service is involved. Word-level sync remains available through
+  a local `whisper` in `./.venv`.
+- Track B renders through Remotion like Track A; the tracks now differ only in
+  what drives the timing.
+- Discovery no longer offers stock footage as a visual source. The choice is
+  what the user drops in `input/`, or motion graphics.
+
 ## [1.4.0] — 2026-08-28
 
 ### Added

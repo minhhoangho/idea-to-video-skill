@@ -26,7 +26,7 @@ Put this line in the Phase 2 message, always, even when the idea mentions no ass
 
 > If you have a logo, product photos, a brand guide, or a reference video, drop them in
 > `video-projects/2026-08-28-adidas/input/` — I'll read whatever is there.
-> *(default: nothing — I'll propose a palette and use stock imagery)*
+> *(default: nothing — I'll propose a palette and build the visuals)*
 
 Then **carry on**. Do not block waiting for files. The default is "nothing supplied", and a user who has nothing should not have to say so before you can work.
 
