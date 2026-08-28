@@ -73,6 +73,18 @@ Make me a 20-second vertical video for my barbershop booking app
 Explain how JWT auth works in 60 seconds, for junior devs
 ```
 
+### Giving it your own material
+
+Before it asks you anything, the skill creates a job folder and tells you its `input/` path. Drop whatever you have in there — logo, product photos, brand guide PDF, a competitor clip you like the pacing of, a script draft — and it reads all of it before proposing a direction.
+
+```
+video-projects/2026-08-28-adidas/
+├── input/      ← yours. Never modified, never deleted.
+└── assets/     ← what the skill fetched or generated
+```
+
+Nothing is required; with an empty `input/` it proposes a palette and uses stock imagery. But a brand guide gets you the real hex codes instead of a close guess, and every file you supply is accounted for in `brief.md` — used, or declined with a reason.
+
 ```
 My Remotion video looks flat and generic — fix it
 ```
@@ -151,6 +163,7 @@ idea-to-video/
 │   ├── track-remotion.md       # scaffold, the ten motion rules, render loop
 │   ├── track-stock-tts.md      # MoneyPrinterTurbo path, credentials, exit codes
 │   ├── track-storyboard.md     # no-terminal fallback deliverable
+│   ├── input-analysis.md       # reading the reference material you supply
 │   ├── project-structure.md    # workspace layout, naming, archiving
 │   └── qa-and-delivery.md      # frame inspection checklist, handover format
 ├── assets/
@@ -159,6 +172,7 @@ idea-to-video/
 │   └── storyboard-template.md
 └── scripts/
     ├── new_project.sh          # create a job folder, seed brief.md, register it
+    ├── scan_input.sh           # inventory the reference material you dropped in
     ├── setup_python_env.sh     # create/reuse ./.venv for edge-tts and friends
     ├── scaffold_remotion.sh    # bootstrap a Remotion project inside a job
     └── inspect_frames.sh       # extract frames for the QA pass

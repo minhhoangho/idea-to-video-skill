@@ -3,7 +3,7 @@ name: idea-to-video
 description: Turn a short idea, topic, or one-line prompt into a finished video. Use this skill whenever the user wants to make or fix a video — a Reel/Short/TikTok, promo, explainer, product demo, logo or brand animation, kinetic typography, animated captions, or a faceless narrated video — even when they name no tool and give only one sentence like "make me a video about X" or "30s clip for our app launch". Also use it when the user mentions Remotion, MoneyPrinterTurbo, motion graphics, b-roll, voice-over, storyboard, video script, shot list, or asks why an existing generated video looks flat or generic. The skill runs one short clarification round, proposes 2–3 creative directions with a recommendation, then produces the video — or a production-ready storyboard package when no render environment exists.
 compatibility: Works in any Claude surface. Full rendering needs a terminal with Node.js 18+ and ffmpeg (Remotion track) or uv/Python 3.11 (stock+TTS track); Python tooling runs from a local ./.venv created by scripts/setup_python_env.sh. Without a terminal the skill degrades gracefully to the storyboard track.
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 # Idea → Video
@@ -16,9 +16,9 @@ Most AI video output fails for one of two reasons: the agent guessed at intent i
 
 Run these five phases in order. Never skip 2 or 3, never merge 2 and 3 into one message.
 
-1. **Understand** — mine the user's sentence for what is already decided.
-2. **Clarify** — one consolidated question round, every question carrying a default.
-3. **Propose** — 2–3 named creative directions, one explicitly recommended.
+1. **Understand** — mine the user's sentence for what is already decided, then create the job folder.
+2. **Clarify** — one consolidated question round, every question carrying a default, plus the `input/` path.
+3. **Propose** — read whatever they supplied, then 2–3 named creative directions, one explicitly recommended.
 4. **Produce** — pick the engine, build, render.
 5. **Verify & deliver** — inspect actual frames, fix, hand over the file plus upgrade suggestions.
 
@@ -28,6 +28,7 @@ Run these five phases in order. Never skip 2 or 3, never merge 2 and 3 into one 
 - **Never ask what the idea already answers.** "15s vertical intro for a barbershop booking app" has already given you duration, aspect ratio, format and subject. Asking again reads as not listening.
 - **Every unstated choice becomes a visible assumption.** When you decide something the user did not, say so in one line with the alternative you rejected. Silence about a choice is the failure mode this skill exists to prevent.
 - **Propose before you produce, and keep proposing while you produce.** See "Proposal discipline" below.
+- **Never silently ignore a supplied file.** Everything in the job's `input/` is either used or declined in writing, with a reason, in `brief.md`. A user who hands over a logo and never hears about it again learns not to bother.
 - **Never ship an unverified render.** Extract frames, look at them, fix what is wrong, re-render. A render that completed is not a render that is good.
 - **Never print API keys, tokens, or full config files** into the conversation, even when debugging.
 
@@ -46,6 +47,8 @@ Then classify the request into one of four shapes, because the shape decides whi
 
 Read `references/discovery.md` for the full question bank keyed to these shapes.
 
+Then create the job folder — `scripts/new_project.sh <slug>` — before you ask anything. It exists this early for one reason: the clarification round in Phase 2 has to name a real `input/` path the user can drop files into, and a folder they would have to create themselves is a folder that stays empty. Only do this once Phase 1 has established the request really is a video job; do not leave dated folders behind for conversations that were only questions.
+
 ## Phase 2 — Clarify
 
 Send one message. Structure it exactly like this — short preamble, then questions with defaults, then the escape hatch:
@@ -57,15 +60,23 @@ Before I start, a few things to lock down (reply "default" to any of them):
 2. Who is watching — ...? (default: ...)
 3. ...
 
+If you have a logo, product photos, a brand guide or a reference video, drop
+them in video-projects/<job>/input/ — I'll read whatever is there.
+(default: nothing — I'll propose a palette and use stock imagery)
+
 If you'd rather I just decide everything, say "you pick" — I'll run the
 defaults and explain each choice afterwards.
 ```
+
+**Include the `input/` line every time**, even when the idea mentions no assets — people forget they have a brand guide until they see the folder. Then carry on without waiting: the default is "nothing supplied", and someone with nothing to add should not have to say so before you can work.
 
 If an interactive option tool is available in the current surface, prefer it over prose bullets — tapping beats typing. Otherwise plain numbered questions are fine.
 
 **Reply in whatever language the user is writing in**, regardless of the language of these files. If the video itself is in a different language from the conversation, confirm both explicitly — this catches the common local-language-conversation / English-video mismatch.
 
 ## Phase 3 — Propose
+
+First read what they gave you. `scripts/scan_input.sh <job> --target <WxH>` inventories the job's `input/` in one table, then open the files that matter — the logo, the brand guide, a reference clip. Directions built on their real palette and their real pacing beat directions built on your taste. `references/input-analysis.md` covers what to extract from each kind of file and the rule that nothing goes unmentioned.
 
 Never jump from answers straight to code. Present 2–3 directions that lead to genuinely different videos, not three tones of the same video. Each gets:
 
@@ -95,7 +106,9 @@ Default to Track A when the video is *about* a brand or an idea, and Track B whe
 
 ### Workspace
 
-Every job gets its own dated folder under `video-projects/` in the user's working directory — brief, script, source, assets, QA frames and versioned renders in one place, indexed in `video-projects/INDEX.md`. Run `scripts/new_project.sh <slug>` before writing any code, and read `references/project-structure.md` for the layout, naming and archiving rules.
+Every job gets its own dated folder under `video-projects/` in the user's working directory — brief, supplied references, script, source, assets, QA frames and versioned renders in one place, indexed in `video-projects/INDEX.md`. The folder was created back in Phase 1; read `references/project-structure.md` for the layout, naming and archiving rules.
+
+Rescan `input/` before you build. Files arrive late — someone finds the logo after they have already answered your questions. If something new turned up after the direction was agreed, say what it changes and let the user decide, rather than quietly rebuilding or quietly ignoring it.
 
 This is not bookkeeping for its own sake. It is what lets the user come back in a month, see which render shipped, and get a square variant without re-answering a single question.
 
@@ -141,6 +154,7 @@ idea-to-video/
 │   ├── track-remotion.md       # scaffold, 10 motion rules, render loop
 │   ├── track-stock-tts.md      # MoneyPrinterTurbo path, credentials, exit codes
 │   ├── track-storyboard.md     # no-terminal fallback deliverable
+│   ├── input-analysis.md       # reading the user's supplied reference material
 │   ├── project-structure.md    # video-projects/ workspace layout and naming
 │   └── qa-and-delivery.md      # frame inspection checklist, handover format
 ├── assets/
@@ -149,6 +163,7 @@ idea-to-video/
 │   └── storyboard-template.md
 ├── scripts/
 │   ├── new_project.sh          # create a job folder + register it in INDEX.md
+│   ├── scan_input.sh           # inventory the user's input/ before proposing
 │   ├── setup_python_env.sh     # create/reuse ./.venv for edge-tts and friends
 │   ├── scaffold_remotion.sh    # non-interactive Remotion project bootstrap
 │   └── inspect_frames.sh       # ffmpeg frame extraction for verification

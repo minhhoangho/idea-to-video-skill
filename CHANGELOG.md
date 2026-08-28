@@ -4,6 +4,36 @@ All notable changes to this skill are recorded here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] — 2026-08-28
+
+### Added
+- `input/` in every job folder — reference material the user supplies, kept
+  separate from `assets/` and never written to by the agent.
+- `scripts/scan_input.sh` — inventories `input/` in one table (kind, dimensions,
+  duration, page count), flags images too small for the target frame and files
+  that cannot be opened at all.
+- `references/input-analysis.md` — what to extract from each kind of supplied
+  file, how to pull a palette from an image, and the rule that every file is
+  either used or declined in writing.
+- `brief.md` gains a "Supplied references" section: one row per file, saying
+  what was taken from it or why it was not used.
+
+### Changed
+- `new_project.sh` now runs at the end of Phase 1 instead of the start of
+  Phase 4, so the Phase 2 clarification round can hand the user a real `input/`
+  path. It also creates `input/` and prints a reminder to scan it.
+- The clarification message gains a standing `input/` line, included even when
+  the idea mentions no assets.
+- Discovery slots 8 and 9 ("assets on hand", "brand constraints") now default to
+  whatever is in `input/` rather than to "none".
+- Phase 3 reads the supplied material before proposing directions; Phase 4
+  rescans before building, and reports what a late arrival changes.
+
+### Fixed
+- The skill asked users to *describe* assets it could simply have been given.
+  "What are your brand colors?" produced worse answers than a folder does, and
+  supplied material had nowhere to live.
+
 ## [1.3.0] — 2026-08-27
 
 ### Added

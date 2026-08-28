@@ -53,18 +53,27 @@ Total: <must match the duration in section 2>
 - Narration: <yes/no, voice, pace>
 - Effects:
 
-## 8. Assets required
+## 8. Supplied references (`input/`)
+
+Every file the user put in `input/` gets a row. A file that was not used still
+gets a row, saying why — silence about a supplied file is not an option.
+
+| File | What I took from it |
+|---|---|
+| | |
+
+## 9. Assets required
 
 | Type | Source | Status |
 |---|---|---|
 | | | |
 
-## 9. Assumptions made
+## 10. Assumptions made
 
 Things the user did not specify and I decided — with the alternative I rejected:
 
 - **<decision>** — because <reason>. Alternative: <alternative>.
 
-## 10. Out of scope
+## 11. Out of scope
 
 -

@@ -65,7 +65,35 @@ jobs:
           test -f "$JOB/brief.md" || { echo "brief.md not seeded"; exit 1; }
           test -f "$JOB/NOTES.md" || { echo "NOTES.md not created"; exit 1; }
           grep -q ci-test video-projects/INDEX.md || { echo "job not registered"; exit 1; }
+          test -d "$JOB/input" || { echo "input/ not created"; exit 1; }
           echo "workspace scripts ok"
+
+      - name: Input scan reports what is there
+        run: |
+          # The runner image does not guarantee ffmpeg, and scan_input.sh reports
+          # image dimensions through ffprobe — install it rather than test the
+          # degraded path.
+          command -v ffprobe >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; }
+          cd "$(mktemp -d)"
+          JOB=$("$GITHUB_WORKSPACE"/idea-to-video/scripts/new_project.sh scan-test 2>/dev/null)
+          SCAN="$GITHUB_WORKSPACE/idea-to-video/scripts/scan_input.sh"
+          # An empty folder is a normal state, not an error.
+          "$SCAN" "$JOB" | grep -q 'input/ is empty' || { echo "empty input/ not reported"; exit 1; }
+          ffmpeg -v error -y -f lavfi -i color=c=red:s=200x200 -frames:v 1 "$JOB/input/logo small.png"
+          ffmpeg -v error -y -f lavfi -i color=c=blue:s=1080x1920 -frames:v 1 "$JOB/input/hero.png"
+          printf 'a\nb\n' > "$JOB/input/notes.txt"
+          : > "$JOB/input/mockup.psd"
+          OUT="$("$SCAN" "$JOB" --target 1080x1920)"
+          echo "$OUT"
+          # A filename with a space must survive, and the undersized image must be flagged.
+          echo "$OUT" | grep -q 'logo small.png' || { echo "spaced filename lost"; exit 1; }
+          echo "$OUT" | grep -q 'tiny' || { echo "undersized image not flagged"; exit 1; }
+          echo "$OUT" | grep -q 'full-frame capable' || { echo "full-size image not recognised"; exit 1; }
+          echo "$OUT" | grep -q 'cannot be read' || { echo "unopenable file not flagged"; exit 1; }
+          echo "$OUT" | grep -q '4 file(s)' || { echo "wrong file count"; exit 1; }
+          # input/ is the user's: the scan must not have touched it.
+          test -f "$JOB/input/mockup.psd" || { echo "scan modified input/"; exit 1; }
+          echo "input scan ok"
 
       - name: Python env script is idempotent
         run: |

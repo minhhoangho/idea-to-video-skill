@@ -22,15 +22,24 @@ video-projects/
     ├── NOTES.md                    # decision log + revision history
     ├── script.md                   # narration + timing (if narrated)
     ├── storyboard.md               # Track C, or the shot list for any track
+    ├── input/                      # THEIRS — reference material, read-only
     ├── project/                    # Remotion source, or the Track B task dir
-    ├── assets/                      # sourced media specific to this job
+    ├── assets/                     # YOURS — sourced or generated media
     ├── frames/                     # QA extractions — disposable, gitignorable
     └── out/                        # renders, versioned, never overwritten
         ├── barbershop-promo_1080x1920_v1.mp4
         └── barbershop-promo_1080x1920_v2.mp4
 ```
 
-`scripts/new_project.sh <slug>` creates this skeleton and appends the row to `INDEX.md`. Run it at the start of Phase 4, before writing any code.
+`scripts/new_project.sh <slug>` creates this skeleton and appends the row to `INDEX.md`. Run it at the end of Phase 1 — before the clarification round, so that round can hand the user a real `input/` path instead of asking them to describe their brand in prose.
+
+## input/ and assets/ are not the same folder
+
+`input/` holds what the user gave you. `assets/` holds what you fetched or made. The split looks pedantic until the revision six weeks later, when "did the client supply this logo or did we draw it?" turns into an hour of guessing.
+
+**Never write into `input/`.** No cropping in place, no format conversion, no tidy-up rename, no deletion. When a supplied file needs processing, copy it into `assets/` and process the copy — the original stays as the record of what you were handed.
+
+`scripts/scan_input.sh <job> --target <WxH>` inventories the folder in one table and flags images too small for the target frame. `references/input-analysis.md` covers what to extract from each kind of file, and the rule that every one of them is either used or declined in writing.
 
 ## Tooling sits beside the workspace, not inside it
 
@@ -86,6 +95,7 @@ When a user returns with "can you redo the one from last month but square", this
 ## Working rules
 
 - **Read `brief.md` before touching anything** in an existing job folder. It outranks your memory of the conversation.
+- **Rescan `input/` before every build.** Files arrive late. A logo that showed up after the direction was agreed changes something — say what, and let the user decide.
 - **Corrections go into `brief.md`**, not just into the code. A brief that drifts from what was built is worse than no brief.
 - **`frames/` is disposable.** Clear it between renders so you are never inspecting stale frames from the previous version — a genuinely easy mistake that produces confident wrong QA verdicts.
 - **Shared assets go in `_shared/`**, referenced not copied, so a brand palette change propagates instead of being re-fixed in six jobs.

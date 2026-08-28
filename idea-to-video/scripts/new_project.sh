@@ -30,7 +30,10 @@ if [ -d "$JOB" ]; then
   exit 0
 fi
 
-mkdir -p "$JOB"/{project,assets,frames,out}
+# input/ is the user's half of the folder: reference material they drop in for
+# the agent to read. Kept separate from assets/ so that months later it is still
+# obvious which files came from them and which the agent produced.
+mkdir -p "$JOB"/{input,project,assets,frames,out}
 mkdir -p "$ROOT"/_shared/{brand,music} "$ROOT"/_archive
 
 # Workspace index — created once, appended to per job.
@@ -76,4 +79,5 @@ EOF
 
 echo "created ${JOB}" >&2
 echo "next: fill in ${JOB}/brief.md" >&2
+echo "ask the user to drop reference material in ${JOB}/input/, then scan_input.sh" >&2
 echo "$JOB"
