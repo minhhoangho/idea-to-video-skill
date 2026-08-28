@@ -42,7 +42,7 @@ Pick from these; do not use all of them.
 
 ### Faceless content
 
-- Voice: male or female, fast or measured, which language? *(default: female, medium pace, conversation language)*
+- Voice: male or female, fast or measured, which language? *(default: female, medium pace, conversation language)* — `scripts/narrate.sh --voices <lang>` lists what is actually available before you promise anything
 - Visual source: footage or images you drop in `input/`, or pure motion graphics? *(default: motion graphics — there is no stock library, by design)*
 - Caption style: word-by-word highlight, line-by-line, or none? *(default: line-by-line, large, heavy outline)*
 - Background music, and what mood? *(default: yes, neutral lo-fi, ducked under narration)*

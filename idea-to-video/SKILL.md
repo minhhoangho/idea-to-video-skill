@@ -122,6 +122,10 @@ If the user already has a folder convention, use theirs and say what you mapped 
 
 Write the brief into the job folder first (from `assets/brief-template.md`), so the decisions survive context loss and the user can correct them in one place. Corrections go back into `brief.md`, not only into the code.
 
+`scaffold_remotion.sh` gives you `theme.ts` and a component library already in place — `src/components/README.md` maps "what this beat has to do" onto what to reach for. Build scenes by composing those, not by animating from scratch; that is what makes ten scenes look like one video. For narrated work, write `script.md` and run `scripts/narrate.sh <job> --voice <name>` *before* building the composition, so scene lengths come from the audio rather than from a guess.
+
+`references/remotion/INDEX.md` indexes the API reference. Load the one topic you need.
+
 Give one short progress note per phase, not a running commentary. Do not stop to ask permission for things already agreed in the brief.
 
 ## Phase 5 — Verify & deliver

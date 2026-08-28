@@ -201,7 +201,9 @@ The agent picks and tells you why. When it is genuinely torn it will say so and 
 
 Three edits worth doing before real use:
 
-**Your brand in `assets/theme.ts`.** Palette, type, motion character. Saves repeating it every job.
+**Your brand in `assets/theme.ts`.** Palette, type, motion character. Saves repeating it every job. Every value is a fraction of the composition rather than a pixel count, which is what lets one set of scenes re-cut from 9:16 to 1:1 for free — keep it that way when you edit.
+
+**Your components in `assets/components/`.** The primitives and content components copied into every project. Add your own here rather than in a single job, and they show up in the next one too.
 
 **Your defaults in `references/discovery.md`.** The nine-slot table sets what the agent assumes when you stay silent. If you always make 9:16 at 24fps in a specific language, encode that and the question round gets shorter.
 
