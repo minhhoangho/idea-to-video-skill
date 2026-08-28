@@ -140,5 +140,17 @@ else
   exit 1
 fi
 
+# The component library travels with the tokens. Scenes built from these are
+# consistent with each other by construction; scenes animated from scratch in
+# every file are not, and that difference is visible in the finished video.
+if [ -d "$SKILL_DIR/assets/components" ]; then
+  cp "$SKILL_DIR/assets/components"/*.ts "$SKILL_DIR/assets/components"/*.tsx \
+     "$SKILL_DIR/assets/components/README.md" src/components/
+  echo "copied components/ — see src/components/README.md for what to use when"
+else
+  echo "components/ not found at $SKILL_DIR/assets/components" >&2
+  exit 1
+fi
+
 echo "Scaffolded ${DIR} (${W}x${H} @ ${FPS}fps)."
 echo "Next: 'npm install', then build scenes in src/scenes/."

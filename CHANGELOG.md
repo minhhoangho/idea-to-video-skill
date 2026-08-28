@@ -25,6 +25,19 @@ The skill now needs no API keys of any kind.
   list the voices for a language.
 - `<job>/script.md` as a defined format: one `## <scene-id>` heading per scene,
   with comments, blockquotes and horizontal rules stripped from the narration.
+- `assets/components/` — the motion rules as working code rather than prose.
+  Primitives (`Reveal`, `Stagger`, `KenBurns`, `Breathe`, `Grain`, `Vignette`,
+  `Grade`, `SafeArea`), a `Scene` wrapper that stacks them in the order rule 5
+  asks for, and content components (`HeroTitle`, `KineticLines`, `StatCounter`,
+  `BulletList`, `ProcessSteps`, `ComparisonPair`, `Caption`, `MediaPlate`,
+  `DeviceFrame`, `LogoLockup`). `README.md` in that folder maps "what this beat
+  has to do" onto which component to reach for.
+- `theme.ts` gains `layout()`, which resolves the fraction-based tokens against
+  a real composition size, plus `series` (categorical colors), `spacing` and
+  `radius`. Scenes stop hardcoding pixel values, so a 9:16 composition re-cuts
+  to 1:1 without a second set of numbers.
+- CI typechecks the component library against a scaffolded project — these
+  `.tsx` files ship as source and had no other test.
 
 ### Changed
 - Scene durations are derived from the narration audio rather than authored.
@@ -36,6 +49,8 @@ The skill now needs no API keys of any kind.
   what drives the timing.
 - Discovery no longer offers stock footage as a visual source. The choice is
   what the user drops in `input/`, or motion graphics.
+- `scaffold_remotion.sh` copies the component library alongside `theme.ts`, so
+  a new project starts with the primitives already present.
 
 ## [1.4.0] — 2026-08-28
 

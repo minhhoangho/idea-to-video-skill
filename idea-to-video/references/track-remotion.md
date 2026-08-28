@@ -61,7 +61,11 @@ These are the difference between "an AI made this" and "an editor made this". Fo
 
 One file per scene under `src/scenes/`, composed in `src/Root.tsx` with `<Sequence>` and explicit `from`/`durationInFrames` derived from the beat structure in the brief. Keep each scene under ~150 lines; if it grows past that, the scene is doing two jobs.
 
-Shared primitives worth writing once in `src/components/`: `Reveal` (the 3-property staggered entrance), `KenBurns`, `Grain`, `Vignette`, `Grade`, `Caption`. Compose from these rather than re-animating from scratch in every scene — consistency across scenes is what makes a video feel authored.
+These primitives already exist. `scaffold_remotion.sh` copies `assets/components/` into `src/components/`, so `Reveal`, `Stagger`, `KenBurns`, `Breathe`, `Grain`, `Vignette`, `Grade`, `SafeArea` and a `Scene` wrapper that stacks them in the right order are there before you write a line. On top of them sit `HeroTitle`, `KineticLines`, `StatCounter`, `BulletList`, `ProcessSteps`, `ComparisonPair`, `Caption`, `MediaPlate`, `DeviceFrame` and `LogoLockup`.
+
+`src/components/README.md` maps "what this beat has to do" onto which component to reach for. Read it before writing a scene, and compose from these rather than re-animating from scratch — consistency across scenes is what makes a video feel authored rather than assembled.
+
+Sizes come from `layout(useVideoConfig())` in `theme.ts`, which resolves the fraction-based tokens against the real composition. That indirection is what lets the same scenes re-cut from 9:16 to 1:1 without a second set of numbers, so a hardcoded `fontSize: 64` in a scene file quietly costs you that.
 
 ## Captions
 

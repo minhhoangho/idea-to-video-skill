@@ -111,6 +111,48 @@ jobs:
           test "$(grep -c '^\.venv/$' .gitignore)" = 1 || { echo ".gitignore entry duplicated"; exit 1; }
           echo "python env script ok"
 
+      - name: Component library typechecks
+        run: |
+          # These .tsx files ship as source and have no other test. A scaffold
+          # plus tsc is the only thing that catches a broken one before a user
+          # hits it mid-render.
+          cd "$(mktemp -d)"
+          "$GITHUB_WORKSPACE"/idea-to-video/scripts/scaffold_remotion.sh ci 1080 1920 30 ./project
+          cd project
+          npm install --silent --no-audit --no-fund
+          mkdir -p src/scenes
+          cat > src/scenes/CiDemo.tsx <<'TSX'
+          import React from 'react';
+          import {
+            Scene, WipeIn, Backdrop, HeroTitle, KineticLines, StatCounter, BulletList,
+            ProcessSteps, ComparisonPair, Caption, MediaPlate, DeviceFrame, LogoLockup,
+            Reveal, Stagger, KenBurns, Breathe, Grain, Vignette, Grade, SafeArea,
+          } from '../components';
+
+          export const CiDemo: React.FC = () => (
+            <Scene media={<MediaPlate src="images/hero.jpg" />} backdrop={<Backdrop />}>
+              <WipeIn />
+              <HeroTitle align="center">Title</HeroTitle>
+              <KineticLines lines={['one', 'two *three*']} at={10} />
+              <StatCounter to={98.5} decimals={1} suffix="%" label="retained" at={20} />
+              <BulletList items={['a', 'b']} marker="number" at={30} />
+              <ProcessSteps steps={[{ title: 'Write' }, { title: 'Speak', detail: 'tts' }]} at={40} />
+              <ComparisonPair left={{ label: 'Before', body: 'x' }} right={{ label: 'After', body: 'y' }} at={50} />
+              <DeviceFrame src="images/app.png" at={60} />
+              <LogoLockup src="images/logo.svg" wordmark="Brand" cta="Get it" at={70} />
+              <Reveal at={5} exitAt={80} preset="bouncy"><span>r</span></Reveal>
+              <Stagger at={5}><span>a</span><span>b</span></Stagger>
+              <KenBurns to={1.2} drift={[10, -20]}><span>k</span></KenBurns>
+              <Breathe><span>b</span></Breathe>
+              <SafeArea><span>s</span></SafeArea>
+              <Grade /><Vignette /><Grain />
+              <Caption at={5}>caption</Caption>
+            </Scene>
+          );
+          TSX
+          npx tsc --noEmit
+          echo "component library typechecks"
+
       - name: Build bundle
         run: |
           chmod +x scripts/build.sh
