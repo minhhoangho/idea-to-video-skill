@@ -166,7 +166,8 @@ idea-to-video/
 │   ├── track-storyboard.md     # no-terminal fallback deliverable
 │   ├── input-analysis.md       # reading the reference material you supply
 │   ├── project-structure.md    # workspace layout, naming, archiving
-│   └── qa-and-delivery.md      # frame inspection checklist, handover format
+│   ├── qa-and-delivery.md      # frame inspection checklist, handover format
+│   └── remotion/               # Remotion API, 29 topics + INDEX.md
 ├── assets/
 │   ├── brief-template.md
 │   ├── theme.ts                # Remotion design tokens

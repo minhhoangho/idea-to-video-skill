@@ -1,5 +1,10 @@
 # Track A — Remotion (code-driven motion graphics)
 
+> **API reference:** this file covers craft — the motion rules, structure, the render loop.
+> For the API itself, `remotion/INDEX.md` indexes 29 topic files: timing and easing,
+> sequencing, captions, fonts, media, metadata, rendering flags. Load the one you need
+> rather than reading the set.
+
 Use this track when the video is *about* something specific: a brand, a product, an idea with exact words and colors. Remotion renders deterministically from React, so text is exact, colors are exact, and any revision is a re-render rather than a re-generation.
 
 Requires Node.js 18+ and ffmpeg on the machine.

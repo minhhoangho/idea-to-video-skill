@@ -111,6 +111,33 @@ jobs:
           test "$(grep -c '^\.venv/$' .gitignore)" = 1 || { echo ".gitignore entry duplicated"; exit 1; }
           echo "python env script ok"
 
+      - name: Remotion index is complete
+        run: |
+          python3 - <<'PY'
+          import re, pathlib, sys
+          d = pathlib.Path('idea-to-video/references/remotion')
+          idx = (d / 'INDEX.md').read_text()
+          linked = set(re.findall(r'\]\(([\w./-]+\.md)\)', idx))
+          present = {p.name for p in d.glob('*.md')} - {'INDEX.md'}
+          broken = sorted(l for l in linked if not (d / l).exists())
+          orphan = sorted(present - linked)
+          if broken:
+              sys.exit('broken links in INDEX.md: ' + ', '.join(broken))
+          if orphan:
+              sys.exit('files missing from INDEX.md: ' + ', '.join(orphan))
+          print(f'{len(present)} topic files, all indexed')
+          PY
+
+      - name: No API keys anywhere in the skill
+        run: |
+          # The skill's defining constraint. A reference file that quietly
+          # reintroduces a credential prompt is a regression, not a feature.
+          if grep -rniE '(api[_-]?key|secret[_-]?key|access[_-]?token)[[:space:]]*=' \
+               idea-to-video/ ; then
+            echo "a credential assignment appeared in the skill"; exit 1
+          fi
+          echo "no credential assignments"
+
       - name: Component library typechecks
         run: |
           # These .tsx files ship as source and have no other test. A scaffold

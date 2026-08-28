@@ -38,6 +38,17 @@ The skill now needs no API keys of any kind.
   to 1:1 without a second set of numbers.
 - CI typechecks the component library against a scaffolded project — these
   `.tsx` files ship as source and had no other test.
+- `references/remotion/` — 29 topic files plus an index, covering the Remotion
+  API the skill had no reference for: timing and easing, sequencing,
+  compositions, transitions, media, fonts, text measurement, captions, charts,
+  3D, Lottie, parameterisation, `calculateMetadata`, Tailwind's broken
+  `animate-*` classes, media probing, and render flags. `track-remotion.md`
+  keeps the craft rules and now points here for API. Files load on demand, so
+  the always-on cost is unchanged.
+- `references/remotion/transcribe-captions.md` documents word-level timestamps
+  through a local `whisper` in `./.venv`, so even karaoke captions need no key.
+  `maps.md` is explicit that a real basemap is the single feature that would,
+  and shows the GeoJSON approach that avoids it.
 
 ### Changed
 - Scene durations are derived from the narration audio rather than authored.
