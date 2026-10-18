@@ -61,6 +61,14 @@ else
   BIN="$("$SCRIPT_DIR/setup_python_env.sh" edge-tts)"
 fi
 
+UPGRADED=0
+upgrade_edge_tts() {
+  if command -v uv >/dev/null 2>&1; then
+    uv pip install --quiet --python "$BIN/python" -U edge-tts >&2 && return 0
+  fi
+  "$BIN/python" -m pip install --quiet -U edge-tts >&2
+}
+
 if [ -n "$LIST_LANG" ]; then
   "$BIN/edge-tts" --list-voices | awk -v p="$(printf '%s' "$LIST_LANG" | tr '[:upper:]' '[:lower:]')" \
     'NR <= 2 || tolower($1) ~ "^" p "-"'
@@ -135,9 +143,19 @@ while IFS="$(printf '\t')" read -r RAW_ID TEXT; do
          --text "$TEXT" --out "$OUT" </dev/null 2>"$ERRLOG")" && [ -s "$OUT" ]; then
       break
     fi
+    # A 403 on the websocket handshake is not transient: the service rotated
+    # what it accepts and only a newer edge-tts speaks the new handshake. A
+    # venv built weeks ago keeps failing, so upgrade once and go again.
+    if [ "$UPGRADED" = "0" ] && grep -q 'WSServerHandshakeError: 403' "$ERRLOG"; then
+      UPGRADED=1
+      echo "rejected with 403 — upgrading edge-tts… " >&2
+      upgrade_edge_tts || echo "    upgrade failed; run: $BIN/python -m pip install -U edge-tts" >&2
+      continue
+    fi
     if [ "$ATTEMPT" -ge "$RETRIES" ]; then
       echo "FAILED after ${RETRIES} attempts" >&2
       sed 's/^/    /' "$ERRLOG" >&2
+      echo "    if this says 403, upgrade: $BIN/python -m pip install -U edge-tts" >&2
       echo "    if this says NoAudioReceived it is usually transient — rerun." >&2
       echo "    if it names the voice, list valid ones: narrate.sh --voices <lang>" >&2
       exit 1

@@ -4,6 +4,18 @@ All notable changes to this skill are recorded here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- `render.sh --no-grain` for drafts: about a third faster, written to
+  `out/<slug>_<W>x<H>_draft.mp4` and replaced each time, never numbered.
+
+### Fixed
+- `narrate.sh` upgrades edge-tts once and retries when the service answers 403,
+  instead of calling it a transient `NoAudioReceived` and failing three times.
+- `inspect_frames.sh` contact sheet now covers the whole video; it stopped at
+  20 seconds, which dropped the CTA from anything longer.
+
 ## [2.1.0] — 2026-10-18
 
 ### Added

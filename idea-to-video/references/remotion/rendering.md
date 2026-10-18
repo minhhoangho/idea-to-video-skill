@@ -18,6 +18,7 @@ Renders land in the job's `out/`, versioned, never overwritten.
 | `--props=./props.json` | Feed a parameterised composition |
 | `--image-format=png` | Required for any render with transparency |
 | `--log=verbose` | When a render fails with no useful message |
+| `--props='{"grain":false}'` | What `render.sh --no-grain` passes; the `Grain` component renders nothing, ~⅓ faster |
 
 ## Preview versus deliverable
 

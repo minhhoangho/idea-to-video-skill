@@ -98,6 +98,8 @@ scripts/render.sh "$JOB" --composition Square   # another composition, same rule
 
 It picks the next free `v<N>` for that size, normalises loudness to -14 LUFS (`--no-loudnorm` to skip), and runs `inspect_frames.sh` into `frames/` — so the QA flags are on screen the moment the render finishes.
 
+`--no-grain` renders a draft about a third faster (film grain is ~40% of the render) to `out/<slug>_<W>x<H>_draft.mp4`, replaced on every draft and never numbered. Use it to check timing and layout; deliver only a numbered render.
+
 For a preview pass while iterating, render a shorter frame range or scale down:
 
 ```bash

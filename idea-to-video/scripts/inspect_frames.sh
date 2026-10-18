@@ -25,7 +25,11 @@ echo "duration: ${DUR}s"
 ffmpeg -v error -i "$VIDEO" -vf fps=1 "$OUT/f_%03d.png"
 ffmpeg -v error -i "$VIDEO" -frames:v 1 "$OUT/first.png"
 ffmpeg -v error -sseof -0.2 -i "$VIDEO" -frames:v 1 -update 1 "$OUT/last.png"
-ffmpeg -v error -i "$VIDEO" -vf "fps=1,scale=320:-1,tile=5x4" -frames:v 1 -update 1 "$OUT/sheet.png" 2>/dev/null || true
+# One cell per second so the sheet covers the whole video, the CTA included; past
+# 60s it samples evenly instead of growing without bound.
+CELLS="$(awk -v d="$DUR" 'BEGIN { n = int(d); if (n < d) n++; print (n < 1 ? 1 : (n > 60 ? 60 : n)) }')"
+SHEET_FPS="$(awk -v n="$CELLS" -v d="$DUR" 'BEGIN { printf "%.6f", n / d }')"
+ffmpeg -v error -i "$VIDEO" -vf "fps=$SHEET_FPS,scale=320:-1,tile=5x$(( (CELLS + 4) / 5 ))" -frames:v 1 -update 1 "$OUT/sheet.png" 2>/dev/null || true
 
 echo "frames written to $OUT/"
 

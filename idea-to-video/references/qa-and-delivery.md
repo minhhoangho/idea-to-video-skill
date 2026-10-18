@@ -38,7 +38,7 @@ For targeted checks:
 ```bash
 ffmpeg -ss 00:00:02 -i "$VIDEO" -frames:v 1 "$JOB/frames/hook.png"
 ffmpeg -i "$VIDEO" -vf fps=1 "$JOB/frames/f_%03d.png"
-ffmpeg -i "$VIDEO" -vf "fps=1,scale=320:-1,tile=5x4" "$JOB/frames/sheet.png"
+ffmpeg -i "$VIDEO" -vf "fps=1,scale=320:-1,tile=5x6" "$JOB/frames/sheet.png"   # 5 columns × ceil(seconds/5) rows
 ```
 
 **Clear `frames/` between renders.** Inspecting a leftover frame from the previous version produces a confident, wrong verdict — and it is an easy mistake to make, because a stale frame looks exactly like a fresh one.

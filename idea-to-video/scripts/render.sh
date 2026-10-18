@@ -5,9 +5,12 @@
 #   ./render.sh "$JOB"                       # Main → out/<slug>_<W>x<H>_v<N>.mp4
 #   ./render.sh "$JOB" --composition Square  # another composition, same rules
 #   ./render.sh "$JOB" --no-loudnorm         # keep the mix exactly as rendered
+#   ./render.sh "$JOB" --no-grain            # draft: ~40% faster, no film grain
 #
-# Never overwrites: <N> is one past the highest existing render of the same
-# slug and size. Prints the new file's path on stdout.
+# Never overwrites a deliverable: <N> is one past the highest existing render of
+# the same slug and size. A --no-grain draft is the exception by design — it goes
+# to out/<slug>_<W>x<H>_draft.mp4 and is replaced on every draft, so it can never
+# be mistaken for a version. Prints the new file's path on stdout.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -15,19 +18,21 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 JOB=""
 COMP="Main"
 LOUDNORM=1
+GRAIN=1
 
 while [ $# -gt 0 ]; do
   case "$1" in
+    --no-grain) GRAIN=0; shift ;;
     --composition) COMP="${2:?--composition needs an id}"; shift 2 ;;
     --composition=*) COMP="${1#--composition=}"; shift ;;
     --no-loudnorm) LOUDNORM=0; shift ;;
-    -h|--help) sed -n '2,10p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,13p' "$0"; exit 0 ;;
     -*) echo "unknown option: $1" >&2; exit 1 ;;
     *) [ -z "$JOB" ] || { echo "unexpected argument: $1" >&2; exit 1; }; JOB="$1"; shift ;;
   esac
 done
 
-[ -n "$JOB" ] || { echo "usage: render.sh <job> [--composition <id>] [--no-loudnorm]" >&2; exit 1; }
+[ -n "$JOB" ] || { echo "usage: render.sh <job> [--composition <id>] [--no-loudnorm] [--no-grain]" >&2; exit 1; }
 PROJECT="$JOB/project"
 [ -f "$PROJECT/package.json" ] || { echo "no Remotion project in $PROJECT — run scaffold_remotion.sh first" >&2; exit 1; }
 [ -d "$PROJECT/node_modules" ] || { echo "dependencies missing — run 'npm install' in $PROJECT" >&2; exit 1; }
@@ -40,20 +45,27 @@ mkdir -p "$JOB/out"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-echo "rendering $COMP…" >&2
-(cd "$PROJECT" && npx remotion render "$COMP" "$TMP/raw.mp4" --codec=h264 --crf=18 --log=error) >&2
+PROPS=()
+if [ "$GRAIN" = "0" ]; then PROPS=(--props='{"grain":false}'); fi
+
+echo "rendering $COMP${PROPS[*]:+ (draft, no grain)}…" >&2
+(cd "$PROJECT" && npx remotion render "$COMP" "$TMP/raw.mp4" --codec=h264 --crf=18 --log=error ${PROPS[@]+"${PROPS[@]}"}) >&2
 
 # Size comes from the file, not from arguments, so the filename cannot lie.
 SIZE="$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$TMP/raw.mp4")"
 
-N=0
-for f in "$JOB/out/${SLUG}_${SIZE}_v"*.mp4; do
-  [ -e "$f" ] || continue
-  v="${f##*_v}"; v="${v%.mp4}"
-  case "$v" in ''|*[!0-9]*) continue ;; esac
-  if [ "$v" -gt "$N" ]; then N="$v"; fi
-done
-OUT="$JOB/out/${SLUG}_${SIZE}_v$((N + 1)).mp4"
+if [ "$GRAIN" = "0" ]; then
+  OUT="$JOB/out/${SLUG}_${SIZE}_draft.mp4"
+else
+  N=0
+  for f in "$JOB/out/${SLUG}_${SIZE}_v"*.mp4; do
+    [ -e "$f" ] || continue
+    v="${f##*_v}"; v="${v%.mp4}"
+    case "$v" in ''|*[!0-9]*) continue ;; esac
+    if [ "$v" -gt "$N" ]; then N="$v"; fi
+  done
+  OUT="$JOB/out/${SLUG}_${SIZE}_v$((N + 1)).mp4"
+fi
 
 HAS_AUDIO="$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$TMP/raw.mp4" | head -1)"
 if [ "$LOUDNORM" = "1" ] && [ -n "$HAS_AUDIO" ]; then

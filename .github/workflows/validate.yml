@@ -216,6 +216,12 @@ jobs:
           echo "$OUT"
           if echo "$OUT" | grep -q WARN; then echo "QA warned on a clean video"; exit 1; fi
           test -f ok/qa.txt || { echo "qa.txt not written"; exit 1; }
+          # The contact sheet must reach the end of a long video: 25s is five
+          # rows of 180px; the old fixed 5x4 grid stopped at four.
+          ffmpeg -v error -f lavfi -i testsrc2=s=640x360:d=25 -c:v libx264 -pix_fmt yuv420p long_640x360_v1.mp4
+          "$QA" long_640x360_v1.mp4 long >/dev/null
+          test "$(ffprobe -v error -show_entries stream=height -of csv=p=0 long/sheet.png)" = 900 \
+            || { echo "contact sheet does not cover the whole video"; exit 1; }
           echo "qa report ok"
 
       - name: Build bundle

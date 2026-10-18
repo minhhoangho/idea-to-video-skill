@@ -10,6 +10,7 @@
 import React from 'react';
 import {
   AbsoluteFill,
+  getInputProps,
   interpolate,
   random,
   spring,
@@ -128,6 +129,9 @@ export const Breathe: React.FC<{
  */
 export const Grain: React.FC<{ opacity?: number }> = ({ opacity = layers.grainOpacity }) => {
   const frame = useCurrentFrame();
+  // render.sh --no-grain passes {"grain":false}. Grain is ~40% of render time,
+  // and a draft is for checking timing and layout, not texture.
+  if (getInputProps().grain === false) return null;
   // A fresh seed each frame is what makes it read as grain rather than as a
   // texture stuck to the lens. random() keeps it reproducible across renders.
   const seed = Math.floor(random(`grain-${frame}`) * 1000);

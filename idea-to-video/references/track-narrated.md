@@ -147,6 +147,7 @@ Music at a constant level under speech is the most common audio mistake on this 
 | Wrong language voice | `--voice` omitted, so the US English default was used |
 | An editorial note is spoken | Written as plain text instead of a comment or blockquote; `--dry-run` would have caught it |
 | `NoAudioReceived` | Transient upstream failure. The script retries three times; if it persists, rerun later |
+| `WSServerHandshakeError: 403` | Not transient: an old edge-tts the service no longer accepts. The script upgrades it once and retries; by hand, `.venv/bin/python -m pip install -U edge-tts` |
 | "no component for scene 'x'" | `SCENE_COMPONENTS` has no entry for that id — use the normalised id `narrate.sh` printed |
 | "no narration yet" | `audioConfig.ts` is still the scaffold placeholder — run `narrate.sh` |
 | Captions wrap to two lines | `perPage` too high for the frame width; 3 suits 9:16 |
