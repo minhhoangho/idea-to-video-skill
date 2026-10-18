@@ -60,6 +60,8 @@ node --version && ffmpeg -version | head -1   # Track A and B
 
 Python tools — `edge-tts` and anything a job adds later — go into a `.venv` in *your* working directory, created on demand by `scripts/setup_python_env.sh`. One venv for every job, gitignored automatically, safe to delete whenever. Nothing is installed into system Python.
 
+If the voice service starts answering 403 to an older `edge-tts`, `narrate.sh` upgrades it inside that venv once and retries, so a venv built months ago keeps working.
+
 ---
 
 ## Using it
@@ -84,7 +86,7 @@ video-projects/2026-08-28-adidas/
 └── assets/     ← what the skill fetched or generated
 ```
 
-Nothing is required; with an empty `input/` it proposes a palette and uses stock imagery. But a brand guide gets you the real hex codes instead of a close guess, and every file you supply is accounted for in `brief.md` — used, or declined with a reason.
+Nothing is required; with an empty `input/` it proposes a palette and builds the visuals as motion graphics (there is no stock library, by design). But a brand guide gets you the real hex codes instead of a close guess, and every file you supply is accounted for in `brief.md` — used, or declined with a reason.
 
 ```
 My Remotion video looks flat and generic — fix it
@@ -102,9 +104,19 @@ Turn last week's blog post into a faceless short with voice-over
 
 **3. It builds.** Creates a job folder, writes the brief, picks the engine, renders.
 
-**4. It checks its own work.** Every render gets an automated ffmpeg report — black or frozen stretches, dead air, loudness against the -14 LUFS platforms expect — then the agent extracts frames and looks at them for cropped text, subtitle collisions and safe-area violations, fixes, re-renders.
+**4. It checks its own work.** Every render gets an automated ffmpeg report — black or frozen stretches, dead air, loudness against the -14 LUFS platforms expect — then the agent extracts frames and looks at them for cropped text, subtitle collisions and safe-area violations, fixes, re-renders. While iterating it can render drafts without film grain (`render.sh --no-grain`), about a third faster.
 
 **5. It delivers** the file path plus two or three concrete upgrades you might want next.
+
+### What comes out, and how long it takes
+
+| | Default |
+|---|---|
+| Size | 1080×1920 (9:16) at 30 fps; any other size or ratio on request |
+| Encoding | H.264 CRF 18, AAC 192 kbps / 48 kHz, loudness normalised to -14 LUFS |
+| Length | Whatever the brief says: 15s, 30s, 60s and 90s+ have ready-made beat structures. Narrated videos take their length from the script — roughly 220 Vietnamese or 170 English words per minute |
+
+Measured on an M1 Pro (8 cores) for a 30s, 1080×1920 clip of text and gradient scenes: **about 50s to render** with the full look, about 35s as a no-grain draft, plus ~5s for the QA pass. Narration adds edge-tts time too — one sample took ~15s for ~9s of speech, scenes generated one after another. Footage, large images or 3D scenes render slower, and your own machine will differ — this is a yardstick, not a promise. Time spent by the agent writing and fixing scenes usually outweighs all of it.
 
 ### Steering it
 
@@ -129,10 +141,11 @@ video-projects/
     ├── frames/                     # QA extractions, disposable
     └── out/
         ├── barbershop-promo_1080x1920_v1.mp4
-        └── barbershop-promo_1080x1920_v2.mp4
+        ├── barbershop-promo_1080x1920_v2.mp4
+        └── barbershop-promo_1080x1920_draft.mp4   # --no-grain preview, replaced each time
 ```
 
-Renders are versioned and never overwritten, and dimensions are in the filename because most jobs ship in more than one aspect ratio. `NOTES.md` is what makes "redo last month's one, but square" a five-minute re-render instead of a fresh interview.
+Renders are versioned and never overwritten (the one `_draft` file is the deliberate exception, and is never a deliverable), and dimensions are in the filename because most jobs ship in more than one aspect ratio. `NOTES.md` is what makes "redo last month's one, but square" a five-minute re-render instead of a fresh interview.
 
 If you already have a folder convention, say so — the skill will use yours and tell you what it mapped where.
 
@@ -181,7 +194,7 @@ idea-to-video/
     ├── narrate.sh              # script.md → voice-over, timing, word timings
     ├── tts_words.py            # one scene through edge-tts (used by narrate.sh)
     ├── scaffold_remotion.sh    # bootstrap a Remotion project inside a job
-    ├── render.sh               # versioned render, -14 LUFS, then QA
+    ├── render.sh               # versioned render, -14 LUFS, then QA (--no-grain for drafts)
     └── inspect_frames.sh       # extract frames + automated QA report
 ```
 
@@ -223,7 +236,7 @@ bash -n idea-to-video/scripts/*.sh      # syntax check
 ./install.sh && # re-install, then start a new Claude Code session
 ```
 
-CI runs on every push: shell syntax, executable bits, `SKILL.md` frontmatter, whether every path referenced in the docs actually exists, and an end-to-end run of the workspace scripts. That last check is the one that catches real breakage — the docs and the scripts drifting apart is the failure mode this skill is most prone to.
+CI runs on every push: shell syntax, executable bits, `SKILL.md` frontmatter, whether every path referenced in the docs actually exists, a typecheck of the component library, the narrated scaffold before and after narration, the QA report (including that its contact sheet covers the whole video), and an end-to-end run of the workspace scripts. That last check is the one that catches real breakage — the docs and the scripts drifting apart is the failure mode this skill is most prone to.
 
 Bump the version in `SKILL.md` frontmatter and add a `CHANGELOG.md` entry when you change behaviour.
 
