@@ -7,9 +7,9 @@
 Only when you do not already have the text:
 
 - The user supplied audio or video and wants captions from it.
-- You want true word-level timestamps for karaoke-style highlighting.
+- A voice-over recorded by a person, where nobody has word timings.
 
-On the narrated track you wrote the script and `narrate.sh` measured every clip, so the text and the timing already exist. Transcribing your own synthesised speech to recover text you have on disk is wasted time and introduces errors.
+On the narrated track you need none of this: `narrate.sh` records each word's timing from the TTS itself into `audioConfig.ts`, and `<WordCaptions words={scene.words} />` renders karaoke-style captions from it. Transcribing your own synthesised speech to recover text and timing you already have is wasted time and introduces errors.
 
 ## Running it locally
 

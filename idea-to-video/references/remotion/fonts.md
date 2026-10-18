@@ -1,5 +1,7 @@
 # Fonts
 
+The scaffolded `theme.ts` already loads Inter (400/700/800, Latin and Vietnamese subsets) this way and builds `font.family` from it. To change the face, swap that `loadFont` import — every component reads `font.family`, so nothing else changes. It is fetched from Google at render time; for an offline machine, use the local-font path below.
+
 ## Google Fonts
 
 ```bash

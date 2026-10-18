@@ -11,11 +11,11 @@ you write script.md              ← in the conversation, no API call
         ↓  scripts/narrate.sh <job> --voice <name>
 edge-tts  →  project/public/audio/01-hook.mp3 …
         ↓  ffprobe measures each file
-project/src/audioConfig.ts   { id, file, durationInSeconds, frames, from }
-        ↓
+project/src/audioConfig.ts   { id, file, durationInSeconds, frames, from, text, words }
+        ↓  scripts/scaffold_remotion.sh --narrated  (Root/Main already wired)
 Remotion <Sequence from={s.from} durationInFrames={s.frames}>
-        ↓
-MP4 with burned captions
+        ↓  scripts/render.sh <job>
+MP4 with word-synced captions, -14 LUFS, QA report
 ```
 
 The direction of that arrow is the whole trick. **Audio decides scene length.** Write a composition with hardcoded durations and you get scenes that cut while the voice is mid-sentence, or hold three seconds of silence at the end — the two failures that make narrated video feel amateur, and the two that are impossible once timing is derived.
@@ -83,64 +83,39 @@ Rerun `narrate.sh` after *every* change to `script.md`. It is cheap, and a stale
 
 ## Wiring it into the composition
 
-`Root.tsx` takes its length from the generated config — never a literal:
-
-```tsx
-import { Composition } from 'remotion';
-import { FPS, TOTAL_FRAMES } from './audioConfig';
-import { Main } from './Main';
-
-export const RemotionRoot = () => (
-  <Composition
-    id="Main"
-    component={Main}
-    durationInFrames={TOTAL_FRAMES}
-    fps={FPS}
-    width={1080}
-    height={1920}
-  />
-);
+```bash
+scripts/scaffold_remotion.sh --narrated <slug> 1080 1920 30 "$JOB/project"
 ```
 
-`Main.tsx` maps over the scenes. Each one carries its own audio, so the voice and the visuals cannot drift apart:
+That writes a `Root.tsx` whose length and fps come from `audioConfig.ts` — never a literal — and a `Main.tsx` that maps over `SCENES`, giving each scene its own `<Sequence>` and `<Audio>` so the voice and the visuals cannot drift apart. It runs before or after `narrate.sh`; until narration exists, a placeholder config keeps the project compiling and the render fails with "no narration yet".
+
+Your part is `src/scenes/index.tsx` (rename it from `.ts` once it holds JSX): one component per `## <id>` heading, keyed by the normalised id `narrate.sh` printed.
 
 ```tsx
-import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
-import { SCENES } from './audioConfig';
-import { SCENE_COMPONENTS } from './scenes';
-
-export const Main = () => (
-  <AbsoluteFill>
-    {SCENES.map((scene) => {
-      const Component = SCENE_COMPONENTS[scene.id];
-      return (
-        <Sequence key={scene.id} from={scene.from} durationInFrames={scene.frames}>
-          <Audio src={staticFile(scene.file)} />
-          <Component scene={scene} />
-        </Sequence>
-      );
-    })}
-  </AbsoluteFill>
-);
+export const SCENE_COMPONENTS: Record<string, React.FC<{ scene: NarrationScene }>> = {
+  '01-hook': Hook,
+  '02-problem': Problem,
+};
 ```
 
 Inside a scene component, animate against the scene's own `frames`, not the composition's total. `useCurrentFrame()` inside a `<Sequence>` is already relative to that sequence's start, which is what makes this pattern hold together when a script edit shifts every later scene.
 
-A missing scene component is worth failing loudly on: `SCENE_COMPONENTS[scene.id]` returning `undefined` renders a blank sequence with audio playing over nothing, which reads as a render bug rather than a missing file.
+A scene id with no component fails the render with its name, rather than playing the voice over a blank sequence — which would read as a render bug, not a missing file.
 
-## Captions without a transcription service
+## Captions — word-synced, no transcription
 
-You already have the text and the timing, so there is nothing to transcribe. Split each scene's line into caption chunks and distribute them across that scene's frames in proportion to their length:
+`narrate.sh` asks the TTS for word boundaries while it speaks, so every scene in `audioConfig.ts` carries `words: { text, startMs, endMs }[]` — exact timings, not an estimate. Put them on screen with:
 
 ```tsx
-const chunks = text.split(/(?<=[.!?,])\s+/);           // clause-level reads best
-const weights = chunks.map((c) => c.length);
-const total = weights.reduce((a, b) => a + b, 0);
+<Scene>
+  …
+  <WordCaptions words={scene.words} />
+</Scene>
 ```
 
-Give each chunk `frames * weight / total`. This is approximate — it assumes an even speaking rate — but at clause length the drift stays under a frame or two and nobody perceives it. Word-by-word highlighting is where the approximation breaks; if the user specifically wants karaoke-style captions, run `whisper` locally in the `./.venv` (`scripts/setup_python_env.sh openai-whisper`) against the audio you just generated. Still no API key, just slower.
+Three words a page, the spoken word in the accent colour, the last page leaving just before the cut. `perPage` raises the count on 16:9, where a line holds more. `scene.text` is the exact sentence spoken, for anything that needs the full line.
 
-Caption styling rules that survive mobile are in `remotion/captions.md`.
+No `whisper`, no API key, no drift. Caption styling rules that survive mobile are in `remotion/captions.md`.
 
 ## Visuals
 
@@ -153,13 +128,15 @@ There is no stock-footage fetch on this track, deliberately: it required an API 
 
 ## Music
 
-Place a track in `public/audio/`, load it with `staticFile()`, and duck it under the narration rather than fading it globally:
+Place a track in `public/audio/` and add it to `Main.tsx` at the composition root — outside the scene `<Sequence>`s, so it plays continuously — ducked under the narration with the helper in `src/narration.ts`:
 
 ```tsx
-<Audio src={staticFile('audio/music.mp3')} volume={(f) => (isNarrating(f) ? 0.18 : 0.5)} />
+import { musicVolume } from './narration';
+
+<Audio src={staticFile('audio/music.mp3')} volume={(f) => musicVolume(f)} />
 ```
 
-Music at a constant level under speech is the most common audio mistake on this track. Ducking to roughly a third during narration and back up between scenes is what makes it sound mixed rather than layered.
+Music at a constant level under speech is the most common audio mistake on this track. `musicVolume` sits at roughly a third under the voice and ramps back up where there is none; `{ under, full, rampSeconds }` tune it. `render.sh` then normalises the whole mix to -14 LUFS, so set the balance here and leave the absolute level to it.
 
 ## Common failures
 
@@ -170,5 +147,6 @@ Music at a constant level under speech is the most common audio mistake on this 
 | Wrong language voice | `--voice` omitted, so the US English default was used |
 | An editorial note is spoken | Written as plain text instead of a comment or blockquote; `--dry-run` would have caught it |
 | `NoAudioReceived` | Transient upstream failure. The script retries three times; if it persists, rerun later |
-| Captions drift late in a scene | Chunks weighted by count rather than by length |
-| Blank video with audio | `SCENE_COMPONENTS` has no entry for that scene id |
+| "no component for scene 'x'" | `SCENE_COMPONENTS` has no entry for that id — use the normalised id `narrate.sh` printed |
+| "no narration yet" | `audioConfig.ts` is still the scaffold placeholder — run `narrate.sh` |
+| Captions wrap to two lines | `perPage` too high for the frame width; 3 suits 9:16 |

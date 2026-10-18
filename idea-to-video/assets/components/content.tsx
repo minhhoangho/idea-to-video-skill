@@ -7,8 +7,8 @@
  */
 
 import React from 'react';
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
-import { colors, easing, font, layout, series, springs } from '../theme';
+import { interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
+import { colors, easing, font, layout, series, timing } from '../theme';
 import { Reveal, Stagger } from './primitives';
 
 /** The opening statement. One idea, large, nothing else competing with it. */
@@ -286,12 +286,11 @@ export const ComparisonPair: React.FC<{
 export const Caption: React.FC<{
   children: React.ReactNode;
   at?: number;
+  /** Frame the caption starts leaving (rule 4). Omit and it stays to the cut. */
+  exitAt?: number;
   plate?: boolean;
-}> = ({ children, at = 0, plate = true }) => {
-  const frame = useCurrentFrame();
-  const config = useVideoConfig();
-  const L = layout(config);
-  const enter = spring({ frame: frame - at, fps: config.fps, config: springs.snappy });
+}> = ({ children, at = 0, exitAt, plate = true }) => {
+  const L = layout(useVideoConfig());
 
   return (
     <div
@@ -302,28 +301,84 @@ export const Caption: React.FC<{
         bottom: L.safe.bottom,
         display: 'flex',
         justifyContent: 'center',
-        opacity: enter,
-        transform: `translateY(${(1 - enter) * 18}px)`,
       }}
     >
-      <div
-        style={{
-          fontFamily: font.family,
-          fontSize: L.type.caption,
-          fontWeight: 800,
-          lineHeight: 1.15,
-          letterSpacing: '-0.01em',
-          textAlign: 'center',
-          color: colors.text,
-          padding: plate ? `${L.space.xs}px ${L.space.sm}px` : 0,
-          borderRadius: plate ? L.radius.sm : 0,
-          background: plate ? 'rgba(0,0,0,0.72)' : 'transparent',
-          textShadow: plate ? 'none' : '0 2px 8px rgba(0,0,0,0.9)',
-          maxWidth: '92%',
-        }}
-      >
-        {children}
-      </div>
+      <Reveal at={at} exitAt={exitAt} distance={18} style={{ maxWidth: '92%' }}>
+        <div
+          style={{
+            fontFamily: font.family,
+            fontSize: L.type.caption,
+            fontWeight: 800,
+            lineHeight: 1.15,
+            letterSpacing: '-0.01em',
+            textAlign: 'center',
+            color: colors.text,
+            padding: plate ? `${L.space.xs}px ${L.space.sm}px` : 0,
+            borderRadius: plate ? L.radius.sm : 0,
+            background: plate ? 'rgba(0,0,0,0.72)' : 'transparent',
+            textShadow: plate ? 'none' : '0 2px 8px rgba(0,0,0,0.9)',
+          }}
+        >
+          {children}
+        </div>
+      </Reveal>
     </div>
+  );
+};
+
+/**
+ * Word-synced captions for a narrated scene: a few words at a time, the word
+ * being spoken in the accent colour. Pass `scene.words` from audioConfig.ts —
+ * narrate.sh records them from the TTS itself, so there is nothing to
+ * transcribe and nothing to drift.
+ *
+ *   <WordCaptions words={scene.words} />
+ *
+ * Use inside the scene's own <Sequence>; word times are relative to its start.
+ */
+export const WordCaptions: React.FC<{
+  words: { text: string; startMs: number; endMs: number }[];
+  /** Words on screen at once. At caption size, 4 already wraps on 9:16; raise it on 16:9. */
+  perPage?: number;
+  highlight?: string;
+  plate?: boolean;
+}> = ({ words, perPage = 3, highlight = colors.accent, plate = true }) => {
+  const frame = useCurrentFrame();
+  const { fps, durationInFrames } = useVideoConfig();
+  const ms = (frame / fps) * 1000;
+  const toFrame = (t: number) => Math.round((t / 1000) * fps);
+
+  const pages: (typeof words)[] = [];
+  for (let i = 0; i < words.length; i += perPage) pages.push(words.slice(i, i + perPage));
+
+  // The page on screen is the last one whose first word has started.
+  let p = -1;
+  pages.forEach((page, i) => {
+    if (page[0].startMs <= ms) p = i;
+  });
+  if (p < 0) return null;
+
+  const page = pages[p];
+  const isLast = p === pages.length - 1;
+  return (
+    <Caption
+      key={p}
+      at={toFrame(page[0].startMs)}
+      // Pages hand over to each other; only the last one leaves, timed to
+      // finish exactly at the cut.
+      exitAt={isLast ? durationInFrames - timing(fps).exit : undefined}
+      plate={plate}
+    >
+      {page.map((w, i) => {
+        const next = page[i + 1];
+        const active = w.startMs <= ms && ms < (next ? next.startMs : w.endMs + 250);
+        return (
+          <span key={i} style={{ color: active ? highlight : undefined }}>
+            {i > 0 ? ' ' : ''}
+            {w.text}
+          </span>
+        );
+      })}
+    </Caption>
   );
 };

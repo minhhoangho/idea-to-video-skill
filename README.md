@@ -102,7 +102,7 @@ Turn last week's blog post into a faceless short with voice-over
 
 **3. It builds.** Creates a job folder, writes the brief, picks the engine, renders.
 
-**4. It checks its own work.** Extracts frames with ffmpeg, looks at them for cropped text, dead frames, subtitle collisions and safe-area violations, fixes, re-renders.
+**4. It checks its own work.** Every render gets an automated ffmpeg report — black or frozen stretches, dead air, loudness against the -14 LUFS platforms expect — then the agent extracts frames and looks at them for cropped text, subtitle collisions and safe-area violations, fixes, re-renders.
 
 **5. It delivers** the file path plus two or three concrete upgrades you might want next.
 
@@ -170,15 +170,19 @@ idea-to-video/
 │   └── remotion/               # Remotion API, 29 topics + INDEX.md
 ├── assets/
 │   ├── brief-template.md
-│   ├── theme.ts                # Remotion design tokens
+│   ├── theme.ts                # Remotion design tokens, loads the typeface
+│   ├── components/             # motion primitives + content components
+│   ├── narration.ts            # narrated-track types, music ducking
 │   └── storyboard-template.md
 └── scripts/
     ├── new_project.sh          # create a job folder, seed brief.md, register it
     ├── scan_input.sh           # inventory the reference material you dropped in
     ├── setup_python_env.sh     # create/reuse ./.venv for edge-tts and friends
-    ├── narrate.sh              # script.md → voice-over + audioConfig.ts timing
+    ├── narrate.sh              # script.md → voice-over, timing, word timings
+    ├── tts_words.py            # one scene through edge-tts (used by narrate.sh)
     ├── scaffold_remotion.sh    # bootstrap a Remotion project inside a job
-    └── inspect_frames.sh       # extract frames for the QA pass
+    ├── render.sh               # versioned render, -14 LUFS, then QA
+    └── inspect_frames.sh       # extract frames + automated QA report
 ```
 
 `SKILL.md` loads whenever the skill triggers; the reference files load only when the relevant track is chosen. That is deliberate — it keeps the always-on cost small.
@@ -190,7 +194,7 @@ idea-to-video/
 | Track | Use when | Gives you |
 |---|---|---|
 | **A — Remotion** | The video is *about* something specific: a brand, a product, exact words and colors | Deterministic React-rendered motion graphics. Exact text, exact colors, re-renderable forever |
-| **B — Narrated** | Meaning is carried by a *voice*: faceless content, recaps, explainers | Script → free local TTS → every scene timed to the audio → burned captions → MP4 |
+| **B — Narrated** | Meaning is carried by a *voice*: faceless content, recaps, explainers | Script → free local TTS → every scene timed to the audio → word-synced captions → MP4 |
 | **C — Storyboard** | No terminal, or you want the plan not the file | Brief, timed script, shot list, verbatim text sheet, asset queries |
 
 The agent picks and tells you why. When it is genuinely torn it will say so and let you break the tie.

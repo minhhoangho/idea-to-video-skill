@@ -14,7 +14,15 @@ The `Caption` component implements all of this. Reach for it before writing your
 
 ## Timing them
 
-On the narrated track you already have the text and the per-scene frame counts, so no transcription is needed. Split each scene's line at clause boundaries and distribute the scene's frames by chunk length:
+On the narrated track, use `WordCaptions`. `narrate.sh` stores every word's start and end, as the TTS reported them, in `scene.words`:
+
+```tsx
+<WordCaptions words={scene.words} />          // 3 words a page, spoken word highlighted
+```
+
+Timing is exact rather than estimated, and it needs no transcription.
+
+Anywhere else — text you only have as a string, with no word timings — split at clause boundaries and distribute the frames by chunk length:
 
 ```tsx
 const chunks = text.split(/(?<=[.!?,])\s+/);
@@ -26,7 +34,7 @@ Weight by character count, not by chunk count — otherwise "Yes." holds as long
 
 ## Word-level highlighting
 
-The karaoke effect needs real per-word timestamps, which clause-weighting cannot fake. See `transcribe-captions.md` — it runs locally, with no API key.
+The karaoke effect needs real per-word timestamps, which clause-weighting cannot fake. Narrated track: you already have them, use `WordCaptions`. Audio the user supplied: see `transcribe-captions.md` — it runs locally, with no API key — then feed the result to `WordCaptions` in the same `{ text, startMs, endMs }` shape.
 
 ## @remotion/captions
 

@@ -152,7 +152,7 @@ jobs:
           import React from 'react';
           import {
             Scene, WipeIn, Backdrop, HeroTitle, KineticLines, StatCounter, BulletList,
-            ProcessSteps, ComparisonPair, Caption, MediaPlate, DeviceFrame, LogoLockup,
+            ProcessSteps, ComparisonPair, Caption, WordCaptions, MediaPlate, DeviceFrame, LogoLockup,
             Reveal, Stagger, KenBurns, Breathe, Grain, Vignette, Grade, SafeArea,
           } from '../components';
 
@@ -173,12 +173,50 @@ jobs:
               <Breathe><span>b</span></Breathe>
               <SafeArea><span>s</span></SafeArea>
               <Grade /><Vignette /><Grain />
-              <Caption at={5}>caption</Caption>
+              <Caption at={5} exitAt={90}>caption</Caption>
+              <WordCaptions words={[{ text: 'hi', startMs: 0, endMs: 200 }]} perPage={3} />
             </Scene>
           );
           TSX
           npx tsc --noEmit
           echo "component library typechecks"
+
+      - name: Narrated scaffold typechecks, before and after narration
+        run: |
+          # Two states matter: the placeholder config a fresh --narrated scaffold
+          # ships with, and the config narrate.sh actually generates. The second
+          # is the one that catches the shell output drifting from narration.ts.
+          cd "$(mktemp -d)"
+          JOB=$("$GITHUB_WORKSPACE"/idea-to-video/scripts/new_project.sh narrated-ci 2>/dev/null)
+          "$GITHUB_WORKSPACE"/idea-to-video/scripts/scaffold_remotion.sh --narrated narrated-ci 1080 1920 30 "$JOB/project"
+          (cd "$JOB/project" && npm install --silent --no-audit --no-fund && npx tsc --noEmit)
+          echo "placeholder config typechecks"
+          printf '# ci\n## 01 Hook\nSay "hi" \\ there.\n> not spoken\n## 02-cta\nBye now.\n' > "$JOB/script.md"
+          "$GITHUB_WORKSPACE"/idea-to-video/scripts/narrate.sh "$JOB" --voice en-US-AndrewNeural
+          grep -q '"words": \[{' "$JOB/project/src/audioConfig.ts" || { echo "no word timings generated"; exit 1; }
+          if grep -q 'not spoken' "$JOB/project/src/audioConfig.ts"; then echo "blockquote was narrated"; exit 1; fi
+          (cd "$JOB/project" && npx tsc --noEmit)
+          echo "generated config typechecks"
+
+      - name: QA report flags what it should
+        run: |
+          cd "$(mktemp -d)"
+          QA="$GITHUB_WORKSPACE/idea-to-video/scripts/inspect_frames.sh"
+          # Black, silent, and named with the wrong size: every check should fire.
+          ffmpeg -v error -f lavfi -i color=c=black:s=1080x1920:d=3 -f lavfi -i anullsrc=r=48000:cl=stereo \
+            -t 3 -c:v libx264 -pix_fmt yuv420p -c:a aac bad_1080x1080_v1.mp4
+          OUT="$("$QA" bad_1080x1080_v1.mp4 bad)"
+          echo "$OUT"
+          for want in 'filename says 1080x1080' 'near-black' 'frozen' 'silence' 'WARN  loudness'; do
+            echo "$OUT" | grep -q "$want" || { echo "QA missed: $want"; exit 1; }
+          done
+          # A busy, correctly named, silent-free picture with no audio: nothing should fire.
+          ffmpeg -v error -f lavfi -i testsrc2=s=640x360:d=3 -c:v libx264 -pix_fmt yuv420p ok_640x360_v1.mp4
+          OUT="$("$QA" ok_640x360_v1.mp4 ok)"
+          echo "$OUT"
+          if echo "$OUT" | grep -q WARN; then echo "QA warned on a clean video"; exit 1; fi
+          test -f ok/qa.txt || { echo "qa.txt not written"; exit 1; }
+          echo "qa report ok"
 
       - name: Build bundle
         run: |

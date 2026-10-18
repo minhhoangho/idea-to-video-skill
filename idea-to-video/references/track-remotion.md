@@ -70,11 +70,13 @@ These primitives already exist. `scaffold_remotion.sh` copies `assets/components
 
 `src/components/README.md` maps "what this beat has to do" onto which component to reach for. Read it before writing a scene, and compose from these rather than re-animating from scratch — consistency across scenes is what makes a video feel authored rather than assembled.
 
+The typeface is loaded, not assumed: `theme.ts` loads Inter through `@remotion/google-fonts` with the Vietnamese subset, so a render on a machine without Inter installed still looks like the preview. To change it, see `remotion/fonts.md`.
+
 Sizes come from `layout(useVideoConfig())` in `theme.ts`, which resolves the fraction-based tokens against the real composition. That indirection is what lets the same scenes re-cut from 9:16 to 1:1 without a second set of numbers, so a hardcoded `fontSize: 64` in a scene file quietly costs you that.
 
 ## Captions
 
-For word-synced captions, use `@remotion/captions` with a transcript, or drive them from a timing array in the brief. Style rules that survive mobile: 
+For word-synced captions, `WordCaptions` takes `{ text, startMs, endMs }[]` — on the narrated track `narrate.sh` produces exactly that. Style rules that survive mobile:
 - 5–7% of composition height for font size on vertical
 - heavy weight, tight tracking
 - solid stroke or a dark rounded plate behind, never a drop shadow alone
@@ -87,11 +89,14 @@ Place files in `public/audio/`, load with `staticFile()`. Use `<Audio>` with `vo
 
 ## Render
 
-Renders go to the job's `out/`, versioned and never overwritten (see `project-structure.md`):
+Renders go to the job's `out/`, versioned and never overwritten (see `project-structure.md`). Let the script do it rather than naming the file yourself:
 
 ```bash
-npx remotion render Main ../out/<slug>_1080x1920_v1.mp4 --codec=h264 --crf=18
+scripts/render.sh "$JOB"                        # → out/<slug>_<W>x<H>_v<N>.mp4
+scripts/render.sh "$JOB" --composition Square   # another composition, same rules
 ```
+
+It picks the next free `v<N>` for that size, normalises loudness to -14 LUFS (`--no-loudnorm` to skip), and runs `inspect_frames.sh` into `frames/` — so the QA flags are on screen the moment the render finishes.
 
 For a preview pass while iterating, render a shorter frame range or scale down:
 

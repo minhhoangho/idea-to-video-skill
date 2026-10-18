@@ -8,6 +8,23 @@
  */
 
 import { Easing } from 'remotion';
+import { loadFont } from '@remotion/google-fonts/Inter';
+
+/**
+ * The typeface is loaded, not assumed. Naming 'Inter' in CSS only works on a
+ * machine that happens to have it installed; everywhere else the render falls
+ * back to whatever the OS has, diacritics included. loadFont blocks each frame
+ * until the font is ready. Only the weights the components use, and the
+ * vietnamese subset so ầ, ế, ị render in the same face as the rest.
+ *
+ * Swapping the brand font: pick another family from @remotion/google-fonts, or
+ * for a font the user supplied, follow references/remotion/fonts.md.
+ * ponytail: fetched from Google at render time; offline renders need the local-font path.
+ */
+const { fontFamily } = loadFont('normal', {
+  weights: ['400', '700', '800'],
+  subsets: ['latin', 'latin-ext', 'vietnamese'],
+});
 
 export const colors = {
   bg: '#0A0A0F',
@@ -19,7 +36,7 @@ export const colors = {
 } as const;
 
 export const font = {
-  family: 'Inter, system-ui, sans-serif',
+  family: `${fontFamily}, system-ui, sans-serif`,
   headline: { weight: 800, lineHeight: 1.0, letterSpacing: '-0.02em' },
   body: { weight: 400, lineHeight: 1.45, letterSpacing: '0em' },
   /** Sizes as a fraction of composition height — keeps 9:16 and 16:9 in sync. */

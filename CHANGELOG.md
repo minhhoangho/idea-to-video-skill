@@ -4,6 +4,43 @@ All notable changes to this skill are recorded here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] — 2026-10-18
+
+### Added
+- Word-synced captions with no transcription step. `narrate.sh` now asks
+  edge-tts for word boundaries while it speaks (`scripts/tts_words.py`), and
+  every scene in `audioConfig.ts` carries `text` and
+  `words: { text, startMs, endMs }[]`. `WordCaptions` renders them three words
+  a page with the spoken word highlighted. Karaoke captions on the narrated
+  track no longer need `whisper`.
+- `assets/narration.ts` — the narrated track's types, `sceneById`, and
+  `musicVolume(frame)`, which ducks music under the voice with a ramp instead
+  of a step. The docs had been calling an `isNarrating()` that never existed.
+- `scaffold_remotion.sh --narrated` — Root/Main wired to `audioConfig.ts`, a
+  `src/scenes/index.ts` registry, and a placeholder config so the project
+  compiles before narration exists. Missing narration or a missing scene
+  component fails the render with a message that says which.
+- `scripts/render.sh <job>` — renders to the next free
+  `out/<slug>_<W>x<H>_v<N>.mp4`, normalises loudness to -14 LUFS, and runs the
+  QA pass. Size in the filename comes from the file itself.
+- `inspect_frames.sh` writes `frames/qa.txt`: near-black and frozen stretches,
+  silence, integrated loudness and true peak, and a size that disagrees with
+  the filename. They flag; the agent still looks at the frames.
+- `Caption` takes `exitAt`, so captions obey rule 4 like everything else.
+
+### Changed
+- `theme.ts` loads Inter through `@remotion/google-fonts` (400/700/800, Latin
+  and Vietnamese subsets) instead of naming a font that only exists on some
+  machines. Renders without Inter installed used to fall back to the OS font,
+  diacritics included.
+- `audioConfig.ts` is pure data; its type moved to `narration.ts`.
+- `narrate.sh` uses the venv's `edge_tts` module rather than any `edge-tts`
+  binary on `PATH`.
+
+### Removed
+- The scaffolded `npm run render` script. It always wrote `_v1` with overwrite
+  enabled, contradicting the never-overwrite rule; `render.sh` replaces it.
+
 ## [2.0.0] — 2026-08-28
 
 The skill now needs no API keys of any kind.

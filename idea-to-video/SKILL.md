@@ -3,7 +3,7 @@ name: idea-to-video
 description: Turn a short idea, topic, or one-line prompt into a finished video. Use this skill whenever the user wants to make or fix a video — a Reel/Short/TikTok, promo, explainer, product demo, logo or brand animation, kinetic typography, animated captions, or a faceless narrated video — even when they name no tool and give only one sentence like "make me a video about X" or "30s clip for our app launch". Also use it when the user mentions Remotion, motion graphics, b-roll, voice-over, text-to-speech, storyboard, video script, shot list, or asks why an existing generated video looks flat or generic. The skill runs one short clarification round, proposes 2–3 creative directions with a recommendation, then produces the video — or a production-ready storyboard package when no render environment exists. It needs no API keys of any kind.
 compatibility: Works in any Claude surface and needs no API keys. Full rendering needs a terminal with Node.js 18+ and ffmpeg; narrated video also uses edge-tts from a local ./.venv created by scripts/setup_python_env.sh. Without a terminal the skill degrades gracefully to the storyboard track.
 metadata:
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # Idea → Video
@@ -122,7 +122,7 @@ If the user already has a folder convention, use theirs and say what you mapped 
 
 Write the brief into the job folder first (from `assets/brief-template.md`), so the decisions survive context loss and the user can correct them in one place. Corrections go back into `brief.md`, not only into the code.
 
-`scaffold_remotion.sh` gives you `theme.ts` and a component library already in place — `src/components/README.md` maps "what this beat has to do" onto what to reach for. Build scenes by composing those, not by animating from scratch; that is what makes ten scenes look like one video. For narrated work, write `script.md` and run `scripts/narrate.sh <job> --voice <name>` *before* building the composition, so scene lengths come from the audio rather than from a guess.
+`scaffold_remotion.sh` gives you `theme.ts` and a component library already in place — `src/components/README.md` maps "what this beat has to do" onto what to reach for. Build scenes by composing those, not by animating from scratch; that is what makes ten scenes look like one video. For narrated work, scaffold with `--narrated`, write `script.md` and run `scripts/narrate.sh <job> --voice <name>` *before* building scenes, so scene lengths come from the audio rather than from a guess — and captions come from the TTS's own word timings via `WordCaptions`.
 
 `references/remotion/INDEX.md` indexes the API reference. Load the one topic you need.
 
@@ -132,8 +132,8 @@ Give one short progress note per phase, not a running commentary. Do not stop to
 
 Rendering is not finishing. Run the loop in `references/qa-and-delivery.md`:
 
-1. Render.
-2. Extract frames (`scripts/inspect_frames.sh`) at the hook, each transition, and the final CTA.
+1. Render with `scripts/render.sh <job>` — it versions the file, normalises loudness, and extracts frames plus an automated `frames/qa.txt`.
+2. Answer every `WARN` in `qa.txt`, then look at the frames at the hook, each transition, and the final CTA.
 3. Actually look at them. Check text safe-areas, contrast, cropped elements, empty frames, subtitle collisions.
 4. Fix and re-render. Repeat until clean.
 5. Deliver: absolute file path, duration, aspect ratio, one-line description of what it contains. Then update `INDEX.md` and append the version entry to the job's `NOTES.md`.
@@ -166,15 +166,19 @@ idea-to-video/
 │   └── remotion/               # Remotion API, 29 topics + INDEX.md, load on demand
 ├── assets/
 │   ├── brief-template.md       # the single source of truth for a job
-│   ├── theme.ts                # Remotion design tokens
+│   ├── theme.ts                # Remotion design tokens, loads the typeface
+│   ├── components/             # motion primitives + content components
+│   ├── narration.ts            # Track B types, musicVolume()
 │   └── storyboard-template.md
 ├── scripts/
 │   ├── new_project.sh          # create a job folder + register it in INDEX.md
 │   ├── scan_input.sh           # inventory the user's input/ before proposing
 │   ├── setup_python_env.sh     # create/reuse ./.venv for edge-tts and friends
-│   ├── narrate.sh              # script.md → voice-over + audioConfig.ts timing
-│   ├── scaffold_remotion.sh    # non-interactive Remotion project bootstrap
-│   └── inspect_frames.sh       # ffmpeg frame extraction for verification
+│   ├── narrate.sh              # script.md → voice-over + timing + word timings
+│   ├── tts_words.py            # one scene through edge-tts, used by narrate.sh
+│   ├── scaffold_remotion.sh    # non-interactive Remotion bootstrap (--narrated)
+│   ├── render.sh               # versioned render, -14 LUFS, then QA
+│   └── inspect_frames.sh       # frames + automated QA report
 └── README.md                   # install and usage, for humans
 ```
 

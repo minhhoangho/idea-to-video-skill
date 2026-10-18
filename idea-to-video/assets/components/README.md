@@ -19,7 +19,8 @@ import { Scene, HeroTitle, KineticLines, Caption } from '../components';
 | Show footage or a photo | `MediaPlate` | Auto-detects video, Ken Burns on stills, scrim for legibility. |
 | Show a screenshot | `DeviceFrame` | The bezel is what makes it read as an app. |
 | Close on the brand | `LogoLockup` | Mark, then wordmark, then CTA — in that order. |
-| Burn in narration | `Caption` | Sits above the platform safe area, dark plate by default. |
+| Burn in narration | `WordCaptions` | Narrated track: `words={scene.words}`. Three words a page, the spoken word highlighted, timing straight from the TTS. |
+| One fixed caption line | `Caption` | Sits above the platform safe area, dark plate by default. Pass `exitAt` so it leaves before the cut. |
 
 ## Structure every scene the same way
 

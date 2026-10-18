@@ -14,11 +14,24 @@ Repeat until the checklist below passes. Two iterations is normal. If you are on
 
 ## Extracting frames
 
-`scripts/inspect_frames.sh <video> <outdir>` pulls a frame every second plus the first and last, and clears the output directory first. Run it against the job's own folders:
+`scripts/render.sh` runs this for you after every render. To run it by hand, `scripts/inspect_frames.sh <video> <outdir>` pulls a frame every second plus the first and last, and clears the output directory first:
 
 ```bash
 scripts/inspect_frames.sh "$JOB/out/<slug>_1080x1920_v2.mp4" "$JOB/frames"
 ```
+
+It also writes `frames/qa.txt` — ffmpeg's verdict on the things a frame sample can miss:
+
+```
+QA  1080x1920 · 30/1 fps · 7.9s · audio: yes
+ok    size matches filename
+WARN  near-black: 0–0.53s  (intentional?)
+ok    no frozen stretch ≥2s
+ok    no silence ≥0.8s
+ok    loudness -14.2 LUFS, true peak -2.3 dBFS (target -14 ±2, peak ≤ -1)
+```
+
+Every `WARN` gets an answer before delivery: fixed, or intentional and said so. These flag, they do not judge — a dark-themed opening trips the black check on purpose, and grain hides a frozen frame from the freeze check. That is why they sit beside the frames rather than replacing them.
 
 For targeted checks:
 

@@ -17,5 +17,6 @@ export {
   ProcessSteps,
   ComparisonPair,
   Caption,
+  WordCaptions,
 } from './content';
 export { MediaPlate, DeviceFrame, LogoLockup } from './media';

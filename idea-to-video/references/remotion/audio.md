@@ -20,8 +20,12 @@ Audio is placed in time by its enclosing `<Sequence>`, exactly like a visual ele
 The argument is the frame **relative to the Sequence**, not the composition. This is the mechanism for ducking music under narration, which is the single audio change that most improves a narrated video:
 
 ```tsx
-volume={(f) => (isNarrating(f) ? 0.18 : 0.5)}
+import { musicVolume } from './narration';
+// on an <Audio> at the composition root, so f is the composition frame
+volume={(f) => musicVolume(f)}
 ```
+
+`musicVolume` ships in `src/narration.ts` on the narrated track. It ramps between ducked and full rather than stepping, so the short pad between scenes does not make the music lurch up and back down.
 
 Music held at a constant level under speech is the most common mix mistake in generated video.
 
