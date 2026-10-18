@@ -24,7 +24,7 @@ The direction of that arrow is the whole trick. **Audio decides scene length.** 
 
 The script *is* the video on this track. Get it right before spending render time.
 
-Write the narration from the brief, show it to the user, and only proceed once they approve. Read it aloud in your head against the target duration:
+Write the narration from the brief, show it to the user, and only proceed once they approve — unless they said "you pick", in which case the script is yours to approve: run on it, and include it in the delivery so they can still change it. Read it aloud in your head against the target duration:
 
 | Language | Speaking rate | 60s of video |
 |---|---|---|

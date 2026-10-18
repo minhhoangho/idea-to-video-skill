@@ -22,6 +22,8 @@ A shootable brief needs nine slots filled. Most one-line ideas fill three or fou
 
 Slots 1–3 are cheap to confirm and expensive to get wrong; confirm them even when you think you inferred them. Slots 4–9 only get asked when they will actually change the output.
 
+"Confirm" does not always mean "ask". When the user *stated* duration and aspect ratio and the language is not in doubt, the sentence is the confirmation: take the fast lane in `SKILL.md` — one short message with your understanding, the defaults for the rest, and the `input/` path, then Phase 3. Inferred is not stated: "a video about our product" gave you neither number, so ask.
+
 ## Question bank by request shape
 
 Pick from these; do not use all of them.
@@ -44,7 +46,7 @@ Pick from these; do not use all of them.
 
 - Voice: male or female, fast or measured, which language? *(default: female, medium pace, conversation language)* — `scripts/narrate.sh --voices <lang>` lists what is actually available before you promise anything
 - Visual source: footage or images you drop in `input/`, or pure motion graphics? *(default: motion graphics — there is no stock library, by design)*
-- Caption style: word-by-word highlight, line-by-line, or none? *(default: line-by-line, large, heavy outline)*
+- Caption style: word-by-word highlight, line-by-line, or none? *(default: word-synced, three words a page, the spoken word highlighted — `WordCaptions` gives it for free on the narrated track)*
 - Background music, and what mood? *(default: yes, neutral lo-fi, ducked under narration)*
 
 ### Repair / upgrade

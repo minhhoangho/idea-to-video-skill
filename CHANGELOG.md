@@ -10,6 +10,18 @@ versions follow [Semantic Versioning](https://semver.org/).
 - `render.sh --no-grain` for drafts: about a third faster, written to
   `out/<slug>_<W>x<H>_draft.mp4` and replaced each time, never numbered.
 
+### Changed
+- Phase 2 has a fast lane: when the idea states duration and aspect ratio and
+  the language is not in doubt, the question round is skipped and the skill goes
+  straight to proposing.
+- Each proposed direction's Cost line now has a measured yardstick (render,
+  draft, QA and narration times) instead of an unquantified "render time".
+- Revision loops iterate on `--no-grain` drafts and deliver one full render.
+- On the narrated track, "you pick" also approves the script; it is shown in
+  the delivery instead of blocking before the render.
+- The faceless caption default is word-synced, matching what `WordCaptions`
+  does by default; "add word-synced captions" is no longer offered as an upgrade.
+
 ### Removed
 - The GitHub Actions workflow (`.github/workflows/validate.yml`); checks are
   run locally.

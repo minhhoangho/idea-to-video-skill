@@ -15,6 +15,7 @@ So build each direction from three levers pulled in different combinations: **ho
 - Pacing: <cuts per 10s>, structure <beat structure>
 - Sound: <music character + narration yes/no>
 - Trade-off: <what this buys, what it costs>
+- Cost: <expected render time from the yardstick below, assets needed, what could go wrong>
 ```
 
 Then one recommendation line: *"I'd go with A — your goal is <goal>, and A puts <element> in the first two seconds, the only stretch you can count on people watching."*
@@ -42,6 +43,19 @@ Avoid the "Hi everyone, today we're going to..." opener. It spends the only guar
 **90s+ faceless** — Hook 4s · Premise 10s · 4–6 narrative beats · Resolution 12s · CTA 6s
 
 Each beat is one idea and at least one visual change. If a beat runs longer than 12s without a cut, a camera move, or a new element, it will feel dead — split it or add motion.
+
+## Cost yardstick
+
+For the **Cost** line of a direction. Measured on an Apple M1 Pro (8 cores), 1080×1920 at 30fps, scenes of type and gradients:
+
+| Step | Time |
+|---|---|
+| Full render, 30s clip | ~50s — about 1.6× the clip length |
+| `--no-grain` draft, 30s | ~35s |
+| QA pass | ~5s |
+| edge-tts narration | ~1.5–2× the length of the speech, one scene after another |
+
+Say it as "about a minute of rendering per 30s of video", not as a promise: footage layers, large images and 3D scenes are slower, and the user's machine will differ. Machine time is the small part. Writing the scenes and the fix loops are what a job actually costs, so a direction with many bespoke scenes costs more than one built from the stock components, whatever the render time.
 
 ## Pacing reference
 

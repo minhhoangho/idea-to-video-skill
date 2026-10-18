@@ -12,6 +12,8 @@ render → extract frames → inspect → fix → re-render
 
 Repeat until the checklist below passes. Two iterations is normal. If you are on the fourth, the problem is in the brief, not the code — go back and re-propose.
 
+Iterate on drafts, ship on a full render. `render.sh --no-grain` is about a third faster, which is the difference between a quick loop and a slow one when you are fixing layout and timing. Once a draft is clean, do one full `render.sh` and judge that file: the numbered render is the only one that gets delivered, and grain can hide a frozen frame that the draft would show.
+
 ## Extracting frames
 
 `scripts/render.sh` runs this for you after every render. To run it by hand, `scripts/inspect_frames.sh <video> <outdir>` pulls a frame every second plus the first and last, and clears the output directory first:

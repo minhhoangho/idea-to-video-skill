@@ -14,7 +14,7 @@ Most AI video output fails for one of two reasons: the agent guessed at intent i
 
 ## The loop
 
-Run these five phases in order. Never skip 2 or 3, never merge 2 and 3 into one message.
+Run these five phases in order. Never skip 3, never merge 2 and 3 into one message. Phase 2 has one exception, the fast lane below.
 
 1. **Understand** — mine the user's sentence for what is already decided, then create the job folder.
 2. **Clarify** — one consolidated question round, every question carrying a default, plus the `input/` path.
@@ -51,7 +51,9 @@ Then create the job folder — `scripts/new_project.sh <slug>` — before you as
 
 ## Phase 2 — Clarify
 
-Send one message. Structure it exactly like this — short preamble, then questions with defaults, then the escape hatch:
+**Fast lane.** If the idea already states duration and aspect ratio and the language is not in doubt, nothing left to ask would change what you build. Skip the question round: say in two lines what you understood and which defaults you are taking, give the `input/` path, and go straight to Phase 3. "15s vertical intro for a barbershop booking app" qualifies; "make a video about our product" does not. The `input/` line still goes out, because people forget they have a brand guide until they see the folder.
+
+Otherwise, send one message. Structure it exactly like this — short preamble, then questions with defaults, then the escape hatch:
 
 ```
 Before I start, a few things to lock down (reply "default" to any of them):
@@ -85,7 +87,7 @@ Never jump from answers straight to code. Present 2–3 directions that lead to 
 - **Visual language** — palette, typography, motion character
 - **Pacing** — cuts per 10s, beat structure
 - **Sound** — music character, whether there is narration
-- **Cost** — render time, asset needs, what could go wrong
+- **Cost** — render time from the yardstick in `creative-direction.md`, asset needs, what could go wrong
 
 Then recommend one in a single sentence with the reason tied to their goal, not to your taste. `references/creative-direction.md` has the templates, hook formulas and beat structures by duration.
 
@@ -132,13 +134,13 @@ Give one short progress note per phase, not a running commentary. Do not stop to
 
 Rendering is not finishing. Run the loop in `references/qa-and-delivery.md`:
 
-1. Render with `scripts/render.sh <job>` — it versions the file, normalises loudness, and extracts frames plus an automated `frames/qa.txt`.
+1. Render with `scripts/render.sh <job>` — it versions the file, normalises loudness, and extracts frames plus an automated `frames/qa.txt`. While fixing, loop on `--no-grain` drafts (about a third faster); deliver only a full render, and judge that one.
 2. Answer every `WARN` in `qa.txt`, then look at the frames at the hook, each transition, and the final CTA.
 3. Actually look at them. Check text safe-areas, contrast, cropped elements, empty frames, subtitle collisions.
 4. Fix and re-render. Repeat until clean.
 5. Deliver: absolute file path, duration, aspect ratio, one-line description of what it contains. Then update `INDEX.md` and append the version entry to the job's `NOTES.md`.
 
-Close every delivery with 2–3 concrete upgrades ("add word-synced captions", "swap the hook for a direct question", "cut 9:16 and 1:1 from the same composition") — the user's next request is usually one of them.
+Close every delivery with 2–3 concrete upgrades ("add a music bed ducked under the voice", "swap the hook for a direct question", "cut 9:16 and 1:1 from the same composition") — the user's next request is usually one of them.
 
 ## Proposal discipline
 

@@ -98,7 +98,7 @@ Turn last week's blog post into a faceless short with voice-over
 
 ### What happens next
 
-**1. It asks — once.** Up to six questions in a single message, every one carrying a default so you can reply `use the defaults` and move on. It will not ask about anything your sentence already answered. If you want zero questions, say `you pick` and it runs on defaults and explains each choice afterwards.
+**1. It asks — once.** Up to six questions in a single message, every one carrying a default so you can reply `use the defaults` and move on. It will not ask about anything your sentence already answered — when you state the length and aspect ratio up front, it skips the questions entirely and goes straight to proposing. If you want zero questions, say `you pick` and it runs on defaults and explains each choice afterwards.
 
 **2. It proposes.** Two or three named directions that differ in *structure* — different opening two seconds, different pacing, different way of carrying the message — not three adjectives for the same video. One is recommended, with the reason tied to your goal. You pick, or say `you choose`.
 
