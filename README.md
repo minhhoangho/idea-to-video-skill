@@ -160,7 +160,6 @@ If you already have a folder convention, say so — the skill will use yours and
 ├── CHANGELOG.md
 ├── install.sh                  # install into ~/.claude/skills or ./.claude/skills
 ├── scripts/build.sh            # package dist/idea-to-video.skill
-├── .github/workflows/          # CI: syntax, frontmatter, reference and script checks
 └── idea-to-video/              # the skill itself — this is what gets installed
 ```
 
@@ -236,7 +235,7 @@ bash -n idea-to-video/scripts/*.sh      # syntax check
 ./install.sh && # re-install, then start a new Claude Code session
 ```
 
-CI runs on every push: shell syntax, executable bits, `SKILL.md` frontmatter, whether every path referenced in the docs actually exists, a typecheck of the component library, the narrated scaffold before and after narration, the QA report (including that its contact sheet covers the whole video), and an end-to-end run of the workspace scripts. That last check is the one that catches real breakage — the docs and the scripts drifting apart is the failure mode this skill is most prone to.
+There is no CI. Before committing, run the syntax check above and render something small through `scripts/render.sh` — the docs and the scripts drifting apart is the failure mode this skill is most prone to, and only a real run catches it.
 
 Bump the version in `SKILL.md` frontmatter and add a `CHANGELOG.md` entry when you change behaviour.
 

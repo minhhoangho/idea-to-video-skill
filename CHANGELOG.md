@@ -10,6 +10,10 @@ versions follow [Semantic Versioning](https://semver.org/).
 - `render.sh --no-grain` for drafts: about a third faster, written to
   `out/<slug>_<W>x<H>_draft.mp4` and replaced each time, never numbered.
 
+### Removed
+- The GitHub Actions workflow (`.github/workflows/validate.yml`); checks are
+  run locally.
+
 ### Fixed
 - `narrate.sh` upgrades edge-tts once and retries when the service answers 403,
   instead of calling it a transient `NoAudioReceived` and failing three times.
