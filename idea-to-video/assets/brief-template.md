@@ -50,7 +50,8 @@ Total: <must match the duration in section 2>
 ## 7. Sound
 
 - Music:
-- Narration: <yes/no, voice, pace>
+- Narration: <yes/no> · voice `<name>` · rate `<+0%>` · pitch `<+0Hz>` · auditioned: <which voices>
+- Script voice: <casual / storyteller / expert / news / motivational / sales> · address: <bạn/mình, anh em, none>
 - Effects:
 
 ## 8. Supplied references (`input/`)

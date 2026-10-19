@@ -42,7 +42,7 @@ Then classify the request into one of four shapes, because the shape decides whi
 |---|---|---|
 | **Brand / promo** | logo reveal, product launch, app intro | brand assets, exact copy, palette, CTA |
 | **Explainer / educational** | "explain X in 60 seconds", tutorial | script accuracy, pacing, how much text on screen |
-| **Faceless content** | storytelling, top-5, news recap, motivation | narration voice, b-roll source, subtitle style |
+| **Faceless content** | storytelling, top-5, news recap, motivation | narration voice and script voice (the user picks both), b-roll source, subtitle style |
 | **Repair / upgrade** | "my video looks flat", "add captions" | what exists now, what specifically feels wrong |
 
 Read `references/discovery.md` for the full question bank keyed to these shapes.
@@ -124,7 +124,7 @@ If the user already has a folder convention, use theirs and say what you mapped 
 
 Write the brief into the job folder first (from `assets/brief-template.md`), so the decisions survive context loss and the user can correct them in one place. Corrections go back into `brief.md`, not only into the code.
 
-`scaffold_remotion.sh` gives you `theme.ts` and a component library already in place — `src/components/README.md` maps "what this beat has to do" onto what to reach for. Build scenes by composing those, not by animating from scratch; that is what makes ten scenes look like one video. For narrated work, scaffold with `--narrated`, write `script.md` and run `scripts/narrate.sh <job> --voice <name>` *before* building scenes, so scene lengths come from the audio rather than from a guess — and captions come from the TTS's own word timings via `WordCaptions`.
+`scaffold_remotion.sh` gives you `theme.ts` and a component library already in place — `src/components/README.md` maps "what this beat has to do" onto what to reach for. Build scenes by composing those, not by animating from scratch; that is what makes ten scenes look like one video. For narrated work, scaffold with `--narrated`, let the user pick the script voice and the reader — `scripts/narrate.sh --audition a,b,c` gives them samples to listen to — then write `script.md` and run `scripts/narrate.sh <job> --voice <name>` *before* building scenes, so scene lengths come from the audio rather than from a guess — and captions come from the TTS's own word timings via `WordCaptions`.
 
 `references/remotion/INDEX.md` indexes the API reference. Load the one topic you need.
 

@@ -34,6 +34,21 @@ Write the narration from the brief, show it to the user, and only proceed once t
 
 These are speaking rates, not reading rates. A script that looks short on the page usually runs long.
 
+### Script voice — pick it with the user
+
+How the script *talks* matters as much as which voice reads it, and it is the user's call, not a default you slip in. Offer these as numbered options in the clarification round (one recommended, from the brief's tone slot), then write every scene in the chosen one:
+
+| # | Script voice | Sounds like | Vietnamese address | Pairs with |
+|---|---|---|---|---|
+| 1 | **Casual / creator** | short punchy lines, questions to the viewer, slang only if the audience uses it | *bạn* / *mình*, or *anh em* for a male tech/gaming audience | upbeat voice, `--rate +5%` |
+| 2 | **Storyteller** | builds tension, one surprising fact per beat, pauses before the reveal | *bạn*, narrator stays *tôi* or invisible | warm voice, `--rate -5%` |
+| 3 | **Expert / explainer** | plain claims, one idea per sentence, numbers stated exactly | *bạn*, never *mình* | calm, clear voice, `+0%` |
+| 4 | **News / recap** | neutral, who-what-when first, no opinion words | no direct address | news voice, `+0%` |
+| 5 | **Motivational** | second person, imperative, rising rhythm to the last line | *bạn* | deep or bright voice, `--rate -5%`, `--pitch -3Hz` for weight |
+| 6 | **Sales / promo** | benefit first, one problem, one product, a CTA with a verb | *bạn* | energetic voice, `--rate +8%` |
+
+Show the user the hook line written in two of them side by side when they hesitate — one sentence decides it faster than a description. Record the choice in `brief.md`, because a later script edit has to keep the same voice.
+
 ## script.md
 
 One `##` heading per scene. The heading is the scene id — it becomes the audio filename and the key you look up in the composition. Everything under it is spoken verbatim.
@@ -73,9 +88,46 @@ scripts/narrate.sh <job> --voice vi-VN-NamMinhNeural
 scripts/narrate.sh <job> --voice en-US-AndrewNeural --rate +8% --fps 30
 ```
 
-**Always pass `--voice` explicitly.** The default is US English; a Vietnamese script read by an English voice is not a subtle error but it is an easy one to ship. Take the language from the brief, list the voices for it, and pick one — then record which voice you used in the brief, because a re-render months later has to match.
+**Always pass `--voice` explicitly.** The default is US English; a Vietnamese script read by an English voice is not a subtle error but it is an easy one to ship.
 
-`--rate` shifts pace (`+8%` is a useful nudge when a script runs slightly long; past `+15%` it starts to sound rushed). `--pad-frames` (default 6) adds tail silence so a scene never cuts on the last consonant.
+### Let the user choose the reader
+
+Never pick the voice silently. Offer a short numbered menu for the video's language, then let them **listen** before committing:
+
+```bash
+scripts/narrate.sh <job> --audition vi-VN-HoaiMyNeural,vi-VN-NamMinhNeural,en-US-AvaMultilingualNeural
+scripts/narrate.sh --audition en-US-AvaNeural,en-US-BrianNeural --text "Your hook line here."
+```
+
+`--audition` reads one sentence — the first scene of `script.md`, or `--text` before a script exists — in each voice and writes `<job>/voice-samples/<voice>.mp3` (or `./voice-samples/` with no job). It honours `--rate` and `--pitch`, so a "slower and deeper" request can be auditioned too. Nothing else is written; a bad voice name fails on its own line without stopping the rest. Send the user the sample paths and ask which one.
+
+Starting menus — run `scripts/narrate.sh --voices <lang>` for the full list, which prints each voice's gender and personality:
+
+| Language | # | Voice | Character |
+|---|---|---|---|
+| Vietnamese | 1 | `vi-VN-HoaiMyNeural` | female, bright, friendly — the safe default |
+| | 2 | `vi-VN-NamMinhNeural` | male, steady, warm |
+| | 3 | `en-US-AvaMultilingualNeural` | female, expressive — reads Vietnamese text; audition first, the accent may not be native |
+| | 4 | `en-US-AndrewMultilingualNeural` | male, warm and confident — same caveat |
+| English | 1 | `en-US-AvaNeural` | female, expressive, caring |
+| | 2 | `en-US-AndrewNeural` | male, warm, confident |
+| | 3 | `en-US-EmmaNeural` | female, cheerful, conversational |
+| | 4 | `en-US-BrianNeural` | male, casual, approachable |
+| | 5 | `en-US-ChristopherNeural` | male, authoritative — news, explainers |
+| | 6 | `en-US-AriaNeural` | female, confident — news, promos |
+| | 7 | `en-GB-SoniaNeural` / `en-GB-RyanNeural` | British female / male |
+
+Vietnamese has only two native voices, which is why the multilingual ones are on the menu: they widen the choice, but only the user's ear can say whether they pass.
+
+Three knobs shape whichever voice they pick, and each is worth offering when the user says "too fast", "too thin", "more serious":
+
+| Flag | Range that still sounds natural | Use |
+|---|---|---|
+| `--rate` | `-15%` … `+15%` | pace; `+8%` when a script runs slightly long, past `+15%` it sounds rushed |
+| `--pitch` | `-8Hz` … `+8Hz` | `-3`…`-5Hz` adds weight and calm, `+3`…`+5Hz` adds energy; further and it turns synthetic |
+| `--pad-frames` | default 6 | tail silence so a scene never cuts on the last consonant |
+
+Record voice, rate and pitch in `brief.md`; `narrate.sh` also writes them into the header of `audioConfig.ts`, because a re-render months later has to match.
 
 The script bootstraps `./.venv` on first run and retries transient upstream failures — `NoAudioReceived` is intermittent and means nothing on its own. If it fails three times in a row, the error printed is the real one.
 
@@ -145,6 +197,7 @@ Music at a constant level under speech is the most common audio mistake on this 
 | Scene cuts mid-sentence | Composition uses a hardcoded duration instead of `scene.frames` |
 | Silence at the end of a scene | `script.md` edited without rerunning `narrate.sh` — stale `audioConfig.ts` |
 | Wrong language voice | `--voice` omitted, so the US English default was used |
+| User dislikes the voice after render | Voice was picked without an audition — run `--audition` before `narrate.sh`, not after |
 | An editorial note is spoken | Written as plain text instead of a comment or blockquote; `--dry-run` would have caught it |
 | `NoAudioReceived` | Transient upstream failure. The script retries three times; if it persists, rerun later |
 | `WSServerHandshakeError: 403` | Not transient: an old edge-tts the service no longer accepts. The script upgrades it once and retries; by hand, `.venv/bin/python -m pip install -U edge-tts` |

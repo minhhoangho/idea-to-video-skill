@@ -44,7 +44,8 @@ Pick from these; do not use all of them.
 
 ### Faceless content
 
-- Voice: male or female, fast or measured, which language? *(default: female, medium pace, conversation language)* — `scripts/narrate.sh --voices <lang>` lists what is actually available before you promise anything
+- Voice: offer the numbered voice menu for the video's language from `track-narrated.md` §"Let the user choose the reader", and say you will send short samples to listen to before anything is generated *(default: female, medium pace, conversation language — `vi-VN-HoaiMyNeural` for Vietnamese)*
+- Script voice: casual, storyteller, expert, news, motivational or sales — the menu in `track-narrated.md` §"Script voice" *(default: the one matching the tone slot)*. For Vietnamese, the address form (*bạn/mình*, *anh em*, none) comes with it
 - Visual source: footage or images you drop in `input/`, or pure motion graphics? *(default: motion graphics — there is no stock library, by design)*
 - Caption style: word-by-word highlight, line-by-line, or none? *(default: word-synced, three words a page, the spoken word highlighted — `WordCaptions` gives it for free on the narrated track)*
 - Background music, and what mood? *(default: yes, neutral lo-fi, ducked under narration)*

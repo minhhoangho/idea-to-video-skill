@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Speak one scene with edge-tts and report when each word was spoken.
 
-    tts_words.py --voice vi-VN-HoaiMyNeural --rate +0% --text "..." --out 01-hook.mp3
+    tts_words.py --voice vi-VN-HoaiMyNeural --rate +0% --pitch +0Hz --text "..." --out 01-hook.mp3
 
 Writes the mp3, then prints one line on stdout: the scene's `text` and `words`
 as object members (`"text": ..., "words": [...]`) that narrate.sh splices into
@@ -18,9 +18,9 @@ import json
 import edge_tts
 
 
-async def speak(text: str, voice: str, rate: str, out: str) -> list:
+async def speak(text: str, voice: str, rate: str, pitch: str, out: str) -> list:
     words = []
-    comm = edge_tts.Communicate(text, voice, rate=rate, boundary="WordBoundary")
+    comm = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch, boundary="WordBoundary")
     with open(out, "wb") as f:
         async for chunk in comm.stream():
             if chunk["type"] == "audio":
@@ -40,11 +40,12 @@ def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--voice", required=True)
     p.add_argument("--rate", default="+0%")
+    p.add_argument("--pitch", default="+0Hz")
     p.add_argument("--text", required=True)
     p.add_argument("--out", required=True)
     a = p.parse_args()
 
-    words = asyncio.run(speak(a.text, a.voice, a.rate, a.out))
+    words = asyncio.run(speak(a.text, a.voice, a.rate, a.pitch, a.out))
     # JSON is valid TypeScript, and json.dumps handles every quote and
     # backslash the script might contain. Dropping the outer braces leaves
     # members the caller can place after its own id/file/frames fields.

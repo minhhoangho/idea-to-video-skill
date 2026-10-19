@@ -7,6 +7,15 @@ versions follow [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Voice choice on the narrated track. `narrate.sh --audition a,b,c` reads one
+  line (the script's first scene, or `--text`) in each voice into
+  `<job>/voice-samples/`, so the user picks by ear before anything is
+  generated. `track-narrated.md` has a starter voice menu per language,
+  including multilingual voices that widen Vietnamese beyond its two.
+- `narrate.sh --pitch` alongside `--rate`; voice, rate and pitch are written
+  into the `audioConfig.ts` header so a re-render can match.
+- A script-voice menu (casual, storyteller, expert, news, motivational,
+  sales — with the Vietnamese address form) offered in the clarification round.
 - `render.sh --no-grain` for drafts: about a third faster, written to
   `out/<slug>_<W>x<H>_draft.mp4` and replaced each time, never numbered.
 
@@ -27,6 +36,8 @@ versions follow [Semantic Versioning](https://semver.org/).
   run locally.
 
 ### Fixed
+- A negative `--rate` such as `-10%` made `narrate.sh` fail: it was handed to
+  `tts_words.py` as a separate argument, which argparse read as an option.
 - `narrate.sh` upgrades edge-tts once and retries when the service answers 403,
   instead of calling it a transient `NoAudioReceived` and failing three times.
 - `inspect_frames.sh` contact sheet now covers the whole video; it stopped at

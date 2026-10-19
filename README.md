@@ -102,7 +102,7 @@ Turn last week's blog post into a faceless short with voice-over
 
 **2. It proposes.** Two or three named directions that differ in *structure* — different opening two seconds, different pacing, different way of carrying the message — not three adjectives for the same video. One is recommended, with the reason tied to your goal. You pick, or say `you choose`.
 
-**3. It builds.** Creates a job folder, writes the brief, picks the engine, renders.
+**3. It builds.** Creates a job folder, writes the brief, picks the engine, renders. With a voice-over, it first lets you choose the script's voice and the reader, with short audio samples to compare.
 
 **4. It checks its own work.** Every render gets an automated ffmpeg report — black or frozen stretches, dead air, loudness against the -14 LUFS platforms expect — then the agent extracts frames and looks at them for cropped text, subtitle collisions and safe-area violations, fixes, re-renders. While iterating it can render drafts without film grain (`render.sh --no-grain`), about a third faster.
 
@@ -223,7 +223,7 @@ Three edits worth doing before real use:
 
 **Your defaults in `references/discovery.md`.** The nine-slot table sets what the agent assumes when you stay silent. If you always make 9:16 at 24fps in a specific language, encode that and the question round gets shorter.
 
-**Your voice in `references/track-narrated.md`.** Narration defaults to a US English voice. If you work in another language, pin the voice name there — `scripts/narrate.sh --voices vi` lists what is available for a language — along with the caption font that suits it.
+**Your voice in `references/track-narrated.md`.** On a narrated video you choose both the script voice (casual, storyteller, expert, news, motivational, sales) and the reader: the agent offers a short voice menu for your language and sends samples to listen to first (`scripts/narrate.sh --audition a,b,c`), with `--rate` and `--pitch` to adjust pace and weight. Edit the menus there to put your favourite voices first, along with the caption font that suits your language.
 
 ---
 
